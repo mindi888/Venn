@@ -1,0 +1,23 @@
+# Data files (too large / shouldn't be in git)
+backend/data/*.csv
+
+# Environment variables / secrets
+backend/.env
+
+# Python
+__pycache__/
+*.pyc
+backend/venv/
+
+# Models (too large)
+backend/models/*.pkl
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Node / React
+frontend/node_modules/
+frontend/.env
+
+# OS junk
+.DS_Store
