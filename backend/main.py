@@ -19,7 +19,7 @@ app.add_middleware(
         "http://localhost:5173",  # Vite dev server default
         "http://localhost:3000",  # CRA default, in case
         "http://localhost:8443",  # Figma Make dev server
-        #need to add frontend URL
+        "https://venn-movies.vercel.app/", # Vercel link
     ],
     allow_methods=["*"],
     allow_headers=["*"],
