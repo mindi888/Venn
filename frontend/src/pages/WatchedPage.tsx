@@ -32,20 +32,26 @@ export default function WatchedPage() {
     return true;
   });
 
-  const openModal = (m: WatchedMovie) => {
-    setSelected({
-      id: m.movie_id,
-      title: m.movie_title,
-      poster_path: m.poster_path ?? null,
-      runtime: null,
-      vote_average: m.rating,
-      release_date: m.watched_date,
-      genres: m.genres ?? [],
-      overview: null,
-      tagline: null,
-      cast: [],
-      director: [],
-    });
+  const openModal = async (m: WatchedMovie) => {
+    try {
+      const full = await api.getMovie(m.movie_id);
+      setSelected(full);
+    } catch {
+      // Fallback 
+      setSelected({
+        id: m.movie_id,
+        title: m.movie_title,
+        poster_path: m.poster_path ?? null,
+        runtime: null,
+        vote_average: null,
+        release_date: m.watched_date,
+        genres: m.genres ?? [],
+        overview: null,
+        tagline: null,
+        cast: [],
+        director: [],
+      });
+    }
   };
 
   const getRecs = async () => {
@@ -157,7 +163,7 @@ export default function WatchedPage() {
                 <p className="text-xs text-muted-foreground mb-1">{m.watched_date ?? "—"}</p>
                 {m.rating != null && <StarRating value={m.rating} readOnly size="sm" />}
               </div>
-              <span className="text-lg shrink-0 text-red-400">{m.liked === true ? "♥" : ""}</span>
+              <span className="text-lg shrink-0 text-red-400 scale-x-120">{m.liked === true ? "♥" : ""}</span>
             </div>
           ))}
         </div>

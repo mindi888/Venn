@@ -33,6 +33,12 @@ export const api = {
     return res.json();
   },
 
+  getMovie: async (id: number): Promise<Movie> => {
+    const res = await fetch(`${BASE}/movies/${id}`);
+    if (!res.ok) throw new Error(`API error ${res.status}`);
+    return res.json();
+  },
+
   randomMovies: async (limit = 5): Promise<Movie[]> => {
     const res = await fetch(`${BASE}/movies/random?limit=${limit}`);
     if (!res.ok) throw new Error(`API error ${res.status}`);
