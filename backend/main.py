@@ -21,6 +21,7 @@ app.add_middleware(
         "http://localhost:8443",  # Figma Make dev server
         "https://venn-movies.vercel.app/", # Vercel link
     ],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
