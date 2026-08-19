@@ -35,9 +35,14 @@ export default function NavBar() {
     <header className="fixed top-0 left-0 right-0 z-40 bg-background/90 backdrop-blur-md border-b border-border">
       <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-4">
         {/* Logo */}
-        <NavLink to="/dashboard" className="font-display text-lg font-semibold text-gold tracking-tight shrink-0">
-          Venn
+        <NavLink to="/dashboard" className="flex items-center gap-2 shrink-0 group">
+          <img 
+            src="/venn-logo.svg" 
+            alt="Venn Logo" 
+            className="w-18 h-10 object-contain transition-transform group-hover:scale-105" 
+          />
         </NavLink>
+
 
         {/* Search bar */}
         <form onSubmit={handleSearch} className="flex-1 max-w-xs hidden md:flex">

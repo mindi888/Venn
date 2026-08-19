@@ -26,9 +26,9 @@ app.add_middleware(
 )
 
 
-@app.on_event("startup")
-def startup_event():
-    load_artifacts()
+# @app.on_event("startup")
+# def startup_event():
+#     load_artifacts()
 
 
 @app.get("/")
