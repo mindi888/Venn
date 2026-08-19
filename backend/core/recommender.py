@@ -10,6 +10,12 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from core import data
 
+OVERLAP_PRESETS = {
+    "tight": (0, 70),     # only the most tightly-aligned matches
+    "normal": (50, 250),   # current default behavior
+    "loose": (100, 400),   # skip the closest matches, pull from a wider, looser pool
+}
+
 
 def get_franchise_key(title, n_words=2):
     clean = re.sub(r'[^\w\s]', '', title.lower())  # strip punctuation
@@ -52,9 +58,11 @@ def recommend(
     max_per_franchise: int = 2,
     n_results: int = 10,
     include_wildcard: bool = True,
-):
+    exclude_ids: list = None,):
+
     movies_df = data.movies_df
     vectors = data.vectors
+    exclude_ids = set(exclude_ids or [])
 
     idx = movies_df[movies_df["title"] == movie_title].index
     if len(idx) == 0:
@@ -64,7 +72,9 @@ def recommend(
 
     distances = cosine_similarity(vectors[idx].reshape(1, -1), vectors)[0]
 
-    candidates = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:150]
+    candidates = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:]
+    candidates = [c for c in candidates if int(movies_df.iloc[c[0]].id) not in exclude_ids][:150]
+
     results = []
     franchise_counts = {}
     for i, score in candidates:
@@ -96,9 +106,12 @@ def get_coldstart_recommendations(
     movie_titles: list,
     max_per_franchise: int = 2,
     n_results: int = 10,
-):
+    overlap: str = "normal",
+    exclude_ids: list = None,):
+
     movies_df = data.movies_df
     vectors = data.vectors
+    exclude_ids = set(exclude_ids or [])
 
     indices = movies_df[movies_df["title"].isin(movie_titles)].index
     if len(indices) == 0:
@@ -107,7 +120,13 @@ def get_coldstart_recommendations(
     user_vector = vectors[indices].mean(axis=0).reshape(1, -1)
     sim_scores = cosine_similarity(user_vector, vectors)[0]
     candidates = sorted(list(enumerate(sim_scores)), reverse=True, key=lambda x: x[1])
-    candidates = [c for c in candidates if c[0] not in indices][:150]
+    candidates = [
+        c for c in candidates
+        if c[0] not in indices and int(movies_df.iloc[c[0]].id) not in exclude_ids
+    ]
+
+    start, end = OVERLAP_PRESETS.get(overlap, OVERLAP_PRESETS["normal"])
+    candidates = candidates[start:end]
 
     results = []
     franchise_counts = {}
@@ -126,14 +145,17 @@ def get_coldstart_recommendations(
     return results
 
 
-
 def get_watched_before_recommendations(
-    movie_titles: list, max_per_director: int = 3, n_results: int = 30, keyword_weight: float = 0.6,
-):
+    movie_titles: list,
+    max_per_director: int = 3,
+    n_results: int = 30,
+    keyword_weight: float = 0.6,
+    exclude_ids: list = None,):
 
     movies_df = data.movies_df
     vectors = data.vectors
     keyword_vectors = data.keyword_vectors
+    exclude_ids = set(exclude_ids or [])
 
     indices = movies_df[movies_df["title"].isin(movie_titles)].index
     if len(indices) == 0:
@@ -148,7 +170,10 @@ def get_watched_before_recommendations(
     combined_scores = (1 - keyword_weight) * content_sim + (keyword_weight) * keyword_sim
 
     candidates = sorted(list(enumerate(combined_scores)), reverse=True, key=lambda x: x[1])
-    candidates = [c for c in candidates if c[0] not in indices][:150]
+    candidates = [
+        c for c in candidates
+        if c[0] not in indices and int(movies_df.iloc[c[0]].id) not in exclude_ids
+    ][:150]
 
     results = []
     director_counts = {}

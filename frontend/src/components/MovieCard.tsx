@@ -14,7 +14,7 @@ type Props = {
 
 export default function MovieCard({ movie, onClick, reason }: Props) {
   const { user } = useAuth();
-  const year = movie.release_date?.slice(0, 4) ?? "—";
+  const year = movie.release_date || movie.release_date || "—"
   const poster = movie.poster_path ? `${TMDB_IMG}${movie.poster_path}` : null;
   const [liked, setLiked] = useState<boolean>(false);
 

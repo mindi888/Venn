@@ -51,18 +51,18 @@ export const api = {
     return res.json();
   },
 
-  topRatedMovies: async (limit = 10): Promise<Movie[]> => {
+  topRatedMovies: async (limit = 12): Promise<Movie[]> => {
     const res = await fetch(`${BASE}/movies/top-rated?limit=${limit}`);
     if (!res.ok) throw new Error(`API error ${res.status}`);
     return res.json();
   },
 
-  similar: (movie_title: string, max_per_franchise = 2, n_results = 12, include_wildcard = true) =>
-    post<Movie[]>("/recommend/similar", { movie_title, max_per_franchise, n_results, include_wildcard }),
+  similar: (movie_title: string, max_per_franchise = 2, n_results = 24, include_wildcard = true, exclude_ids: number[] = []) =>
+    post<Movie[]>("/recommend/similar", { movie_title, max_per_franchise, n_results, include_wildcard, exclude_ids }),
 
-  coldstart: (movie_titles: string[], max_per_franchise = 2, n_results = 24) =>
-    post<Movie[]>("/recommend/coldstart", { movie_titles, max_per_franchise, n_results }),
+  coldstart: (movie_titles: string[], max_per_franchise = 2, n_results = 30, overlap: "tight" | "normal" | "loose" = "normal", exclude_ids: number[] = []) =>
+    post<Movie[]>("/recommend/coldstart", { movie_titles, max_per_franchise, n_results, overlap, exclude_ids }),
 
-  watchedBefore: (movie_titles: string[], max_per_director = 3, n_results = 20, keyword_weight = 0.3) =>
-    post<Movie[]>("/recommend/watched-before", { movie_titles, max_per_director, n_results, keyword_weight }),
+  watchedBefore: (movie_titles: string[], max_per_director = 3, n_results = 30, keyword_weight = 0.3, exclude_ids: number[] = []) =>
+    post<Movie[]>("/recommend/watched-before", { movie_titles, max_per_director, n_results, keyword_weight, exclude_ids }),
 };

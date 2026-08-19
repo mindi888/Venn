@@ -22,6 +22,7 @@ def similar_movies(req: RecommendRequest):
         max_per_franchise=req.max_per_franchise,
         n_results=req.n_results,
         include_wildcard=req.include_wildcard,
+        exclude_ids=req.exclude_ids,
     )
     if results is None:
         raise HTTPException(status_code=404, detail=f"Movie '{req.movie_title}' not found")
@@ -34,6 +35,8 @@ def coldstart(req: ColdstartRequest):
         movie_titles=req.movie_titles,
         max_per_franchise=req.max_per_franchise,
         n_results=req.n_results,
+        overlap=req.overlap,   #not sure abt this
+        exclude_ids=req.exclude_ids,
     )
     if results is None:
         raise HTTPException(status_code=404, detail="None of the provided movie titles were found")
@@ -47,6 +50,7 @@ def watched_before(req: WatchedBeforeRequest):
         max_per_director=req.max_per_director,
         n_results=req.n_results,
         keyword_weight=req.keyword_weight,
+        exclude_ids=req.exclude_ids,
     )
     if results is None:
         raise HTTPException(status_code=404, detail="None of the provided movie titles were found")

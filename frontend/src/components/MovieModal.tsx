@@ -59,7 +59,21 @@ export default function MovieModal({ movie, onClose }: Props) {
     }
 
     setSimilarLoading(true);
-    api.similar(current.title).then(setSimilar).catch(() => setSimilar([])).finally(() => setSimilarLoading(false));
+    (async () => {
+      let watchedIds: number[] = [];
+      if (user) {
+        const { data } = await supabase.from("watched_movies").select("movie_id").eq("user_id", user.id);
+        watchedIds = (data ?? []).map(d => d.movie_id);
+      }
+      try {
+        const list = await api.similar(current.title, 2, 12, true, watchedIds);
+        setSimilar(list);
+      } catch {
+        setSimilar([]);
+      } finally {
+        setSimilarLoading(false);
+      }
+    })();
   }, [current?.id, user]);
 
   useEffect(() => {
@@ -79,7 +93,7 @@ export default function MovieModal({ movie, onClose }: Props) {
   const goBack = () => setStack(prev => prev.slice(0, -1));
 
   const poster = current.poster_path ? `${TMDB_IMG_LG}${current.poster_path}` : null;
-  const year = current.release_date?.slice(0, 4) ?? "—";
+  const year = movie.release_date || movie.release_date || "—"
   const runtime = current.runtime ? `${Math.floor(current.runtime / 60)}h ${current.runtime % 60}m` : null;
 
   const saveWatched = async () => {

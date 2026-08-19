@@ -7,11 +7,13 @@ import StarRating from "@/components/StarRating";
 const TMDB_IMG = "https://image.tmdb.org/t/p/w185";
 
 type Filter = "all" | "liked" | "unrated";
+type SortOption = "recent" | "rating-desc" | "rating-asc";
 
 export default function WatchedPage() {
   const [movies, setMovies] = useState<WatchedMovie[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<Filter>("all");
+  const [sort, setSort] = useState<SortOption>("recent");
   const [selected, setSelected] = useState<Movie | null>(null);
   const [batchRecs, setBatchRecs] = useState<Movie[]>([]);
   const [batchLoading, setBatchLoading] = useState(false);
@@ -26,18 +28,23 @@ export default function WatchedPage() {
 
   useEffect(() => { load(); }, []);
 
-  const filtered = movies.filter(m => {
-    if (filter === "liked") return m.liked === true;
-    if (filter === "unrated") return m.liked === null;
-    return true;
-  });
+  const filtered = movies
+    .filter(m => {
+      if (filter === "liked") return m.liked === true;
+      if (filter === "unrated") return m.rating == null;
+      return true;
+    })
+    .sort((a, b) => {
+      if (sort === "rating-desc") return (b.rating ?? -1) - (a.rating ?? -1);
+      if (sort === "rating-asc") return (a.rating ?? 11) - (b.rating ?? 11);
+      return 0; // "recent" — keep the created_at order already applied by the query
+    });
 
   const openModal = async (m: WatchedMovie) => {
     try {
       const full = await api.getMovie(m.movie_id);
       setSelected(full);
     } catch {
-      // Fallback 
       setSelected({
         id: m.movie_id,
         title: m.movie_title,
@@ -65,28 +72,18 @@ export default function WatchedPage() {
     setBatchLoading(false);
   };
 
-  const confirmWatched = async (movie: Movie) => {
+  const toggleWatched = async (movie: Movie) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const isAlreadyWatched = confirmedWatched.has(movie.id);
-
-    if (isAlreadyWatched) {
-      // Unmark: Delete from Supabase
-      await supabase
-        .from("watched_movies")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("movie_id", movie.id);
-
-      // Remove from UI state
+    if (confirmedWatched.has(movie.id)) {
+      await supabase.from("watched_movies").delete().eq("user_id", user.id).eq("movie_id", movie.id);
       setConfirmedWatched(prev => {
         const next = new Set(prev);
         next.delete(movie.id);
         return next;
       });
     } else {
-      // Mark: Upsert into Supabase
       await supabase.from("watched_movies").upsert({
         user_id: user.id,
         movie_id: movie.id,
@@ -95,29 +92,10 @@ export default function WatchedPage() {
         genres: movie.genres,
         watched_date: new Date().toISOString().slice(0, 10),
       }, { onConflict: "user_id,movie_id" });
-
-      // Add to UI state
       setConfirmedWatched(prev => new Set(prev).add(movie.id));
     }
-
-    await load(); // Refetch main list to stay perfectly synchronized
+    await load();
   };
-
-
-  // const confirmWatched = async (movie: Movie) => {
-  //   const { data: { user } } = await supabase.auth.getUser();
-  //   if (!user) return;
-  //   await supabase.from("watched_movies").upsert({
-  //     user_id: user.id,
-  //     movie_id: movie.id,
-  //     movie_title: movie.title,
-  //     poster_path: movie.poster_path,
-  //     genres: movie.genres,
-  //     watched_date: new Date().toISOString().slice(0, 10),
-  //   }, { onConflict: "user_id,movie_id" });
-  //   setConfirmedWatched(prev => new Set(prev).add(movie.id));
-  //   await load(); // ← refetch so the main list reflects the new entry immediately
-  // };
 
   return (
     <div className="pt-20 pb-16 px-4 max-w-7xl mx-auto">
@@ -129,14 +107,23 @@ export default function WatchedPage() {
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-2 mb-6 flex-wrap">
+      {/* Filters + Sort */}
+      <div className="flex flex-wrap gap-2 mb-6 items-center">
         {(["all","liked","unrated"] as Filter[]).map(f => (
           <button key={f} onClick={() => setFilter(f)}
             className={`text-sm px-3 py-1.5 rounded-lg border transition-colors capitalize ${filter === f ? "bg-primary/15 border-primary/40 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`}>
             {f === "all" ? `All (${movies.length})` : f === "liked" ? "Favorited" : "Unrated"}
           </button>
         ))}
+        <select
+          value={sort}
+          onChange={e => setSort(e.target.value as SortOption)}
+          className="text-sm px-3 py-1.5 rounded-lg border border-border bg-card text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring ml-auto"
+        >
+          <option value="recent">Sort: Recently Added</option>
+          <option value="rating-desc">Sort: Rating (High → Low)</option>
+          <option value="rating-asc">Sort: Rating (Low → High)</option>
+        </select>
       </div>
 
       {loading ? (
@@ -169,7 +156,6 @@ export default function WatchedPage() {
         </div>
       )}
 
-      {/* Batch recs */}
       {showBatch && (
         <div className="mt-12">
           <h2 className="font-display text-2xl font-semibold text-gold mb-2">Seen any of these?</h2>
@@ -179,12 +165,12 @@ export default function WatchedPage() {
               {Array.from({length:8}).map((_,i)=><div key={i} className="aspect-[2/3] bg-card rounded-xl animate-pulse"/>)}
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {batchRecs.map(m => {
                 const done = confirmedWatched.has(m.id);
                 return (
                   <div key={m.id} className="relative">
-                    <button onClick={() => confirmWatched(m)} 
+                    <button onClick={() => toggleWatched(m)} 
                       className={`group relative flex flex-col rounded-xl overflow-hidden bg-card border transition-all duration-200 w-full text-left ${done ? "border-green-500/50 opacity-75" : "border-border hover:border-primary/40"}`}>
                       <div className="aspect-[2/3] bg-muted overflow-hidden">
                         {m.poster_path
