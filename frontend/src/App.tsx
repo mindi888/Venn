@@ -41,6 +41,27 @@ function LoadingScreen() {
   );
 }
 
+function Footer() {
+  return (
+    <footer className="border-t border-border mt-20 py-10 px-6">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-muted-foreground">
+        <div className="flex flex-col items-center md:items-start gap-1">
+          <span className="font-display text-sm text-gold font-semibold text-foreground">Venn</span>
+          <span>When your tastes overlap</span>
+        </div>
+        <div className="flex flex-col items-center gap-1 text-center">
+          <p>Movie data provided by <a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-gold transition-colors font-medium">TMDB</a></p>
+          <p>Movie posters provided by <a href="https://www.imdb.com" target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-gold transition-colors font-medium">IMDb</a></p>
+        </div>
+        <div className="flex flex-col items-center md:items-end gap-1">
+          <span>&copy; {new Date().getFullYear()} Venn. All rights reserved.</span>
+          <span>Built for film lovers.</span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
 function AppRoutes() {
   return (
     <>
@@ -57,6 +78,7 @@ function AppRoutes() {
         <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
+      <Footer />
     </>
   );
 }
