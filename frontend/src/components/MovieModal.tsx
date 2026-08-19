@@ -210,7 +210,7 @@ export default function MovieModal({ movie, onClose }: Props) {
                     <button
                       onClick={saveWatched}
                       disabled={saving}
-                      className="flex-1 bg-primary text-primary-foreground text-sm font-semibold py-2 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-60"
+                      className="flex-1 bg-accent text-primary text-sm font-semibold py-2 rounded-lg hover:bg-accent/75 transition-colors disabled:opacity-60"
                     >
                       {saving ? "Saving…" : watchedEntry ? "Update" : "Mark as Watched"}
                     </button>

@@ -5,6 +5,7 @@ import MovieModal from "@/components/MovieModal";
 import GenreRadar from "@/components/GenreRadar";
 import { buildGenreProfile } from "@/lib/genres";
 import type { Movie } from "@/lib/api";
+import { api } from "@/lib/api";
 
 const TMDB_IMG = "https://image.tmdb.org/t/p/w342";
 
@@ -24,11 +25,18 @@ export default function ProfilePage() {
   const favoritedCount = watched.filter(m => m.liked).length;
   const topGenre = genreData[0]?.genre ?? "—";
 
-  const toMovie = (m: WatchedMovie): Movie => ({
-    id: m.movie_id, title: m.movie_title, poster_path: m.poster_path ?? null,
-    runtime: null, vote_average: m.rating, release_date: m.watched_date,
-    genres: m.genres ?? [], overview: null, tagline: null, cast: [], director: [],
-  });
+  const openMovie = async (m: WatchedMovie) => {
+    try {
+      const full = await api.getMovie(m.movie_id);
+      setSelected(full);
+    } catch {
+      setSelected({
+        id: m.movie_id, title: m.movie_title, poster_path: m.poster_path ?? null,
+        runtime: null, vote_average: null, release_date: m.watched_date,
+        genres: m.genres ?? [], overview: null, tagline: null, cast: [], director: [],
+      });
+    }
+  };
 
   return (
     <div className="pt-20 pb-16">
@@ -74,7 +82,7 @@ export default function ProfilePage() {
             {recent.map(m => (
               <button
                 key={m.id}
-                onClick={() => setSelected(toMovie(m))}
+                onClick={() => openMovie(m)}
                 className="group relative aspect-[2/3] bg-muted rounded-lg overflow-hidden"
               >
                 {m.poster_path
