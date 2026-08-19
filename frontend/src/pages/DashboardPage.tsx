@@ -135,10 +135,10 @@ export default function DashboardPage() {
         </section>
 
         <section>
-          <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+          <div className="mb-0 flex flex-wrap items-end justify-between gap-4">
             <SectionHeader title="Recommended for you" sub={watched.length === 0 ? "Favorite some movies to get personalized picks." : undefined} />
             {favoritedTitles.length > 0 && (
-              <div className="flex gap-2">
+              <div className="mb-4 flex gap-2">
                 <button onClick={() => changeOverlap("tight")}
                   className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${overlap === "tight" ? "bg-primary/15 border-primary/40 text-primary" : "border-border text-muted-foreground hover:text-foreground"}`}>
                   More Overlap
@@ -170,9 +170,18 @@ export default function DashboardPage() {
 
 function SectionHeader({ title, sub }: { title: string; sub?: string }) {
   return (
-    <div className="mb-0 flex items-end gap-4">
-      <h2 className="font-display text-2xl font-semibold text-gold">{title}</h2>
-      {sub && <p className="text-sm text-muted-foreground mb-0.5">{sub}</p>}
+    <div className="mb-6 flex flex-col gap-1 border-l-2 border-primary/40 pl-4 transition-all duration-300 hover:border-primary">
+      <div className="flex items-baseline gap-3">
+        <h2 className="font-display text-2xl font-bold text-gold tracking-tight uppercase">
+          {title}
+        </h2>
+      </div>
+      {sub && (
+        <p className="text-xs text-muted-foreground tracking-wide font-medium max-w-xl">
+          {sub}
+        </p>
+      )}
     </div>
   );
 }
+

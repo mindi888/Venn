@@ -158,8 +158,15 @@ export default function WatchedPage() {
 
       {showBatch && (
         <div className="mt-12">
-          <h2 className="font-display text-2xl font-semibold text-gold mb-2">Seen any of these?</h2>
-          <p className="text-sm text-muted-foreground mb-6">Check any films you've already seen — we'll refine your recommendations.</p>
+          {/* Header Block */}
+          <div className="mb-6 flex flex-col gap-1 border-l-2 border-primary/40 pl-4 transition-all duration-300 hover:border-primary">
+            <h2 className="font-display text-2xl font-bold text-gold tracking-tight uppercase">
+              Seen any of these?
+            </h2>
+            <p className="text-xs text-muted-foreground tracking-wide font-medium max-w-xl">
+              Check any films you've already seen — we'll refine your recommendations.
+            </p>
+          </div>
           {batchLoading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {Array.from({length:8}).map((_,i)=><div key={i} className="aspect-[2/3] bg-card rounded-xl animate-pulse"/>)}
