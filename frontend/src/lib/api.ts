@@ -33,10 +33,28 @@ export const api = {
     return res.json();
   },
 
+  randomMovies: async (limit = 5): Promise<Movie[]> => {
+    const res = await fetch(`${BASE}/movies/random?limit=${limit}`);
+    if (!res.ok) throw new Error(`API error ${res.status}`);
+    return res.json();
+  },
+
+  latestMovies: async (limit = 5): Promise<Movie[]> => {
+    const res = await fetch(`${BASE}/movies/latest?limit=${limit}`);
+    if (!res.ok) throw new Error(`API error ${res.status}`);
+    return res.json();
+  },
+
+  topRatedMovies: async (limit = 10): Promise<Movie[]> => {
+    const res = await fetch(`${BASE}/movies/top-rated?limit=${limit}`);
+    if (!res.ok) throw new Error(`API error ${res.status}`);
+    return res.json();
+  },
+
   similar: (movie_title: string, max_per_franchise = 2, n_results = 12, include_wildcard = true) =>
     post<Movie[]>("/recommend/similar", { movie_title, max_per_franchise, n_results, include_wildcard }),
 
-  coldstart: (movie_titles: string[], max_per_franchise = 2, n_results = 20) =>
+  coldstart: (movie_titles: string[], max_per_franchise = 2, n_results = 24) =>
     post<Movie[]>("/recommend/coldstart", { movie_titles, max_per_franchise, n_results }),
 
   watchedBefore: (movie_titles: string[], max_per_director = 3, n_results = 20, keyword_weight = 0.3) =>
