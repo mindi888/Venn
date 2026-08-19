@@ -1,10 +1,17 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from core.data import load_artifacts
 from routers import recommend, movies
 
-app = FastAPI(title="Venn API")
+# Modern lifespan setup
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    load_artifacts() # Runs at startup
+    yield
+
+app = FastAPI(title="Venn API", lifespan=lifespan)
+
 
 app.add_middleware(
     CORSMiddleware,

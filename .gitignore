@@ -17,7 +17,7 @@ venv/
 .mypy_cache/
 
 # Models (too large)
-backend/models/*.joblib
+# backend/models/*.joblib
 
 # Jupyter checkpoints
 .ipynb_checkpoints/
