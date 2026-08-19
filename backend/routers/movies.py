@@ -26,3 +26,32 @@ def get_movie(movie_id: int):
     if len(row) == 0:
         raise HTTPException(status_code=404, detail="Movie not found")
     return build_movie_dict(row.iloc[0])
+
+
+@router.get("/random", response_model=list[MovieOut])
+def get_random_movies(limit: int = Query(10, ge=1, le=50)):
+    """Return a random selection of movies."""
+    movies_df = data.movies_df
+    # Don't sample more movies than there exists
+    sample_size = min(limit, len(movies_df))
+    random_movies = movies_df.sample(n=sample_size)
+
+    return [
+        build_movie_dict(row)
+        for _, row in random_movies.iterrows()]
+
+
+@router.get("/latest", response_model=list[MovieOut])
+def get_latest_movies(limit: int = Query(10, ge=1, le=50)):
+    """Return the most recently released movies."""
+
+    movies_df = data.movies_df
+    latest_movies = (
+        movies_df
+        .dropna(subset=["release_date"])
+        .sort_values("release_date", ascending=False)
+        .head(limit))
+
+    return [
+        build_movie_dict(row)
+        for _, row in latest_movies.iterrows()]

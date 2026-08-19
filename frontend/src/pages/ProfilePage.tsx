@@ -50,15 +50,16 @@ export default function ProfilePage() {
       <div className="px-4 max-w-6xl mx-auto mb-14 grid grid-cols-1 md:grid-cols-5 gap-6 items-start">
         {/* Left: stats stacked */}
         <div className="md:col-span-2 flex flex-col gap-4">
-          <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Your numbers</p>
+          <p className="text-s text-accent uppercase tracking-widest mb-1">Your numbers</p>
           <StatBlock value={watched.length} label="Films watched" />
           <StatBlock value={favoritedCount} label="Favorited" />
           <StatBlock value={topGenre} label="Top genre" />
         </div>
 
+        
         {/* Right: radar — bigger, takes 3 cols */}
         <div className="md:col-span-3 bg-card border border-border rounded-2xl p-6">
-          <p className="text-xs text-muted-foreground uppercase tracking-widest mb-4">Taste profile</p>
+          <p className="text-s text-accent uppercase tracking-widest mb-4">Taste profile</p>
           <GenreRadar data={genreData} size={340} />
         </div>
       </div>

@@ -1,37 +1,34 @@
-import { useState } from "react";
+// OnboardingPage.tsx — replace the DUMMY_FILMS array and search logic
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Movie } from "@/lib/api";
+import { api, type Movie } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 
-const DUMMY_FILMS: Movie[] = [
-  { id: 238,   title: "The Godfather",                                          poster_path: "/3bhkrj58Vtu7enYsLlegkAoVJ1L.jpg", release_date: "1972-03-14", genres: ["Crime","Drama"],          runtime: 175, vote_average: 9.2, overview: null, tagline: null, cast: [], director: "Francis Ford Coppola" },
-  { id: 278,   title: "The Shawshank Redemption",                               poster_path: "/lyQBXAf8xmHy5edy4mQtMQuFdAx.jpg", release_date: "1994-09-23", genres: ["Drama"],                  runtime: 142, vote_average: 9.3, overview: null, tagline: null, cast: [], director: "Frank Darabont" },
-  { id: 155,   title: "The Dark Knight",                                        poster_path: "/qJ2tW6WMUDux911r6m7haRef0WH.jpg", release_date: "2008-07-14", genres: ["Action","Crime","Drama"], runtime: 152, vote_average: 9.0, overview: null, tagline: null, cast: [], director: "Christopher Nolan" },
-  { id: 680,   title: "Pulp Fiction",                                           poster_path: "/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg", release_date: "1994-09-10", genres: ["Thriller","Crime"],       runtime: 154, vote_average: 8.9, overview: null, tagline: null, cast: [], director: "Quentin Tarantino" },
-  { id: 424,   title: "Schindler's List",                                       poster_path: "/sF1U4EUQS8YHUYjNl3pMGNIQyr0.jpg", release_date: "1993-11-30", genres: ["History","Drama","War"],  runtime: 195, vote_average: 9.0, overview: null, tagline: null, cast: [], director: "Steven Spielberg" },
-  { id: 122,   title: "The Lord of the Rings: The Return of the King",          poster_path: "/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg", release_date: "2003-12-17", genres: ["Adventure","Fantasy"],    runtime: 201, vote_average: 9.0, overview: null, tagline: null, cast: [], director: "Peter Jackson" },
-  { id: 389,   title: "12 Angry Men",                                           poster_path: "/ow3wq89wM8qd5X7hWKxiRfsFf9C.jpg", release_date: "1957-04-10", genres: ["Drama"],                  runtime: 96,  vote_average: 9.0, overview: null, tagline: null, cast: [], director: "Sidney Lumet" },
-  { id: 429,   title: "The Good, the Bad and the Ugly",                         poster_path: "/bX2xnavhMYjWDoZp1VM6VnU1xwe.jpg", release_date: "1966-12-23", genres: ["Western"],                runtime: 178, vote_average: 8.8, overview: null, tagline: null, cast: [], director: "Sergio Leone" },
-  { id: 550,   title: "Fight Club",                                             poster_path: "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg", release_date: "1999-10-15", genres: ["Drama","Thriller"],       runtime: 139, vote_average: 8.8, overview: null, tagline: null, cast: [], director: "David Fincher" },
-  { id: 13,    title: "Forrest Gump",                                           poster_path: "/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg", release_date: "1994-07-06", genres: ["Comedy","Drama","Romance"],runtime: 142, vote_average: 8.8, overview: null, tagline: null, cast: [], director: "Robert Zemeckis" },
-];
-
-const TMDB_IMG = "https://image.tmdb.org/t/p/w185"; // dummy films mode
+const TMDB_IMG = "https://image.tmdb.org/t/p/w185";
 
 export default function OnboardingPage() {
   const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Movie[]>([]);
   const [selected, setSelected] = useState<Movie[]>([]);
   const [finishing, setFinishing] = useState(false);
   const [finishError, setFinishError] = useState("");
+  const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const results = query.trim()
-    ? DUMMY_FILMS.filter(m => m.title.toLowerCase().includes(query.toLowerCase()))
-    : [];
-
-  const search = (q: string) => setQuery(q);
+  const search = (q: string) => {
+    setQuery(q);
+    if (debounce.current) clearTimeout(debounce.current);
+    if (!q.trim()) { setResults([]); return; }
+    debounce.current = setTimeout(async () => {
+      try {
+        setResults(await api.searchMovies(q, 8));
+      } catch {
+        setResults([]);
+      }
+    }, 300);
+  };
 
   const toggle = (m: Movie) => {
     setSelected(prev =>
@@ -40,6 +37,10 @@ export default function OnboardingPage() {
         : prev.length < 10 ? [...prev, m] : prev
     );
   };
+
+  // ...finish() stays exactly the same as before...
+
+  // In the JSX, replace `results` usage — it now comes from state, not a filter — and use `TMDB_IMG` (w185) consistently instead of the old hardcoded dummy-image constant.
 
   const finish = async () => {
     if (selected.length < 5) return;
@@ -95,7 +96,10 @@ export default function OnboardingPage() {
                 return (
                   <button
                     key={m.id}
-                    onClick={() => { toggle(m); setQuery(""); }}
+                    onClick={() => { toggle(m); setQuery(""); 
+                    setResults([]); // Clear results after selection
+                    }}
+                    
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted transition-colors first:rounded-t-xl last:rounded-b-xl ${isSelected ? "opacity-50" : ""}`}
                   >
                     {m.poster_path
@@ -105,7 +109,7 @@ export default function OnboardingPage() {
                       <p className="text-sm font-medium text-foreground truncate">{m.title}</p>
                       <p className="text-xs text-muted-foreground">{m.release_date?.slice(0,4)}</p>
                     </div>
-                    {isSelected && <span className="ml-auto text-primary text-lg">✓</span>}
+                    {isSelected && <span className="ml-auto text-primary text-lg">✔</span>}
                   </button>
                 );
               })}

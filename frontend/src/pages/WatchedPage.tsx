@@ -44,7 +44,7 @@ export default function WatchedPage() {
       overview: null,
       tagline: null,
       cast: [],
-      director: null,
+      director: [],
     });
   };
 
@@ -62,16 +62,56 @@ export default function WatchedPage() {
   const confirmWatched = async (movie: Movie) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    await supabase.from("watched_movies").upsert({
-      user_id: user.id,
-      movie_id: movie.id,
-      movie_title: movie.title,
-      poster_path: movie.poster_path,
-      genres: movie.genres,
-      watched_date: new Date().toISOString().slice(0, 10),
-    }, { onConflict: "user_id,movie_id" });
-    setConfirmedWatched(prev => new Set(prev).add(movie.id));
+
+    const isAlreadyWatched = confirmedWatched.has(movie.id);
+
+    if (isAlreadyWatched) {
+      // Unmark: Delete from Supabase
+      await supabase
+        .from("watched_movies")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("movie_id", movie.id);
+
+      // Remove from UI state
+      setConfirmedWatched(prev => {
+        const next = new Set(prev);
+        next.delete(movie.id);
+        return next;
+      });
+    } else {
+      // Mark: Upsert into Supabase
+      await supabase.from("watched_movies").upsert({
+        user_id: user.id,
+        movie_id: movie.id,
+        movie_title: movie.title,
+        poster_path: movie.poster_path,
+        genres: movie.genres,
+        watched_date: new Date().toISOString().slice(0, 10),
+      }, { onConflict: "user_id,movie_id" });
+
+      // Add to UI state
+      setConfirmedWatched(prev => new Set(prev).add(movie.id));
+    }
+
+    await load(); // Refetch main list to stay perfectly synchronized
   };
+
+
+  // const confirmWatched = async (movie: Movie) => {
+  //   const { data: { user } } = await supabase.auth.getUser();
+  //   if (!user) return;
+  //   await supabase.from("watched_movies").upsert({
+  //     user_id: user.id,
+  //     movie_id: movie.id,
+  //     movie_title: movie.title,
+  //     poster_path: movie.poster_path,
+  //     genres: movie.genres,
+  //     watched_date: new Date().toISOString().slice(0, 10),
+  //   }, { onConflict: "user_id,movie_id" });
+  //   setConfirmedWatched(prev => new Set(prev).add(movie.id));
+  //   await load(); // ← refetch so the main list reflects the new entry immediately
+  // };
 
   return (
     <div className="pt-20 pb-16 px-4 max-w-7xl mx-auto">
@@ -138,7 +178,7 @@ export default function WatchedPage() {
                 const done = confirmedWatched.has(m.id);
                 return (
                   <div key={m.id} className="relative">
-                    <button onClick={() => confirmWatched(m)} disabled={done}
+                    <button onClick={() => confirmWatched(m)} 
                       className={`group relative flex flex-col rounded-xl overflow-hidden bg-card border transition-all duration-200 w-full text-left ${done ? "border-green-500/50 opacity-75" : "border-border hover:border-primary/40"}`}>
                       <div className="aspect-[2/3] bg-muted overflow-hidden">
                         {m.poster_path
