@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Righteous&family=Ranchers&display=swap');
+@import 'tailwindcss';
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-gold: var(--gold);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+}
+
+:root {
+  --background: #080808;
+  --foreground: #EDEDED;
+  --card: #111111;
+  --card-foreground: #EDEDED;
+  --primary: #FFFFFF;
+  --primary-foreground: #080808;
+  --secondary: #1A1A1A;
+  --secondary-foreground: #5E5E5E;
+  --muted: #141414;
+  --muted-foreground: #8e8e8e;
+  --accent: #C41A1A;
+  --accent-foreground: #FFFFFF;
+  --border: rgba(255, 255, 255, 0.07);
+  --ring: #FFFFFF;
+  --gold: #D4A017;
+  --radius: 0.5rem;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.08) transparent;
+}
+*::-webkit-scrollbar { width: 4px; height: 4px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+html, body, #root {
+  height: 100%;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: 0;
+}
+
+.font-fun {
+  font-family: 'Ranchers', sans-serif;
+  letter-spacing: 0.01em;
+}

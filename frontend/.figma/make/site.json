@@ -1,0 +1,10 @@
+{
+  "description": "This interactive web application allows users to rate items on a scale of 1 to 10 using a star system, enhancing feedback collection and user engagement.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
