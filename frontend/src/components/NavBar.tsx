@@ -67,9 +67,9 @@ export default function NavBar() {
     <header className="fixed top-0 left-0 right-0 z-40 bg-background border-b border-border">
       <div className="max-w-7xl mx-auto px-0 h-18 flex items-center gap-0">
         {/* Logo */}
-        <NavLink
-          to="/dashboard"
-          className="flex items-center shrink-0 w-auto h-24 overflow-hidden"
+        <NavLink 
+          to="/dashboard" 
+          className="flex items-center shrink-0 w-50 h-24 overflow-hidden"
           onMouseEnter={() => {
             animRef.current?.setDirection(1);
             animRef.current?.play();
