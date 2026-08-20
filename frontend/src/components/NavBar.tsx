@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const links = [
   { to: "/dashboard", label: "Home", icon: "🏠" },
@@ -28,32 +28,6 @@ export default function NavBar() {
       setQuery("");
     }
   };
-
-  // #region agent log
-  useEffect(() => {
-    if (!user) return;
-    const header = document.querySelector("header");
-    const hs = header ? getComputedStyle(header) : null;
-    fetch("http://127.0.0.1:7897/ingest/43dc3874-8bb0-41ba-b4c3-0b2bba6c83f7", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "4abc99" },
-      body: JSON.stringify({
-        sessionId: "4abc99",
-        runId: "post-fix",
-        hypothesisId: "A",
-        location: "NavBar.tsx:mount",
-        message: "navbar-computed-style",
-        data: {
-          backdropFilter: hs?.backdropFilter || "none",
-          backgroundColor: hs?.backgroundColor,
-          position: hs?.position,
-          logoComplete: (document.querySelector("header img") as HTMLImageElement | null)?.complete ?? null,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-  }, [user]);
-  // #endregion
 
   if (!user) return null;
 

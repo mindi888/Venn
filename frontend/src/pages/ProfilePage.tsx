@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase, type WatchedMovie } from "@/lib/supabase";
 import MovieModal from "@/components/MovieModal";
@@ -45,31 +45,6 @@ export default function ProfilePage() {
   });
 
   const activityData = Object.entries(activityMap).reverse();
-
-  // #region agent log
-  const renderCount = useRef(0);
-  renderCount.current += 1;
-  useEffect(() => {
-    fetch("http://127.0.0.1:7897/ingest/43dc3874-8bb0-41ba-b4c3-0b2bba6c83f7", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "4abc99" },
-      body: JSON.stringify({
-        sessionId: "4abc99",
-        runId: "post-fix",
-        hypothesisId: "C",
-        location: "ProfilePage.tsx:render",
-        message: "profile-render",
-        data: {
-          renderCount: renderCount.current,
-          watchedLen: watched.length,
-          activityBars: activityData.length,
-          blurOrbs: document.querySelectorAll('[class*="blur-3xl"]').length,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-  });
-  // #endregion
 
   const openMovie = async (m: WatchedMovie) => {
     try {

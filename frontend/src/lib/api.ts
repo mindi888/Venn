@@ -1,4 +1,14 @@
-const BASE = import.meta.env.VITE_API_URL_LOCAL ?? "http://localhost:8000";
+const LOCAL = import.meta.env.VITE_API_URL_LOCAL ?? "http://localhost:8000";
+const REMOTE = import.meta.env.VITE_API_URL ?? LOCAL;
+
+function resolveApiBase(): string {
+  if (typeof window === "undefined") return REMOTE;
+  const host = window.location.hostname;
+  if (host === "localhost" || host === "127.0.0.1") return LOCAL;
+  return REMOTE;
+}
+
+const BASE = resolveApiBase();
 
 export type Movie = {
   id: number;
