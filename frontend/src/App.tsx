@@ -30,13 +30,34 @@ function AuthRoute({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+function DashboardSkeleton() {
+  return (
+    <div className="pb-16">
+      <div className="pt-32 pb-20 px-4 text-center">
+        <div className="h-4 w-40 bg-card rounded mx-auto mb-4 animate-pulse" />
+        <div className="h-14 w-48 bg-card rounded mx-auto mb-3 animate-pulse" />
+        <div className="h-5 w-32 bg-card rounded mx-auto animate-pulse" />
+      </div>
+      <div className="px-4 max-w-7xl mx-auto">
+        <div className="h-6 w-40 bg-card rounded mb-6 animate-pulse" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="aspect-[2/3] bg-card rounded-xl animate-pulse" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Renders a skeleton that already resembles the real page layout, instead of
+// blanking the screen to solid black. The network round-trip to Supabase on
+// page load can't be made instant, but skeleton→content reads as fast even
+// when black→content at the same speed would feel like a stall.
 function LoadingScreen() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="font-display text-lg text-muted-foreground">Venn</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <DashboardSkeleton />
     </div>
   );
 }

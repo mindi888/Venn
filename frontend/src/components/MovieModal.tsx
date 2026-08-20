@@ -25,8 +25,8 @@ export default function MovieModal({ movie, onClose }: Props) {
   const [saving, setSaving] = useState(false);
   const [similar, setSimilar] = useState<Movie[]>([]);
   const [similarLoading, setSimilarLoading] = useState(false);
+  const [similarLikedMap, setSimilarLikedMap] = useState<Map<number, boolean>>(new Map()); // NEW
 
-  // Reset the drill-down stack whenever a brand-new "root" movie is opened
   useEffect(() => {
     setStack([]);
   }, [movie?.id]);
@@ -61,13 +61,16 @@ export default function MovieModal({ movie, onClose }: Props) {
     setSimilarLoading(true);
     (async () => {
       let watchedIds: number[] = [];
+      let liked_map = new Map<number, boolean>(); // NEW
       if (user) {
-        const { data } = await supabase.from("watched_movies").select("movie_id").eq("user_id", user.id);
+        const { data } = await supabase.from("watched_movies").select("movie_id, liked").eq("user_id", user.id); // NEW — now also selects `liked`
         watchedIds = (data ?? []).map(d => d.movie_id);
+        liked_map = new Map((data ?? []).map(d => [d.movie_id, d.liked === true])); // NEW
       }
       try {
         const list = await api.similar(current.title, 2, 12, true, watchedIds);
         setSimilar(list);
+        setSimilarLikedMap(liked_map); // NEW
       } catch {
         setSimilar([]);
       } finally {
@@ -247,7 +250,7 @@ export default function MovieModal({ movie, onClose }: Props) {
               ) : (
                 <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3">
                   {similar.slice(0,6).map(m => (
-                    <MovieCard key={m.id} movie={m} onClick={openSimilar} reason={m.wildcard ? "Wildcard pick" : `Similar to ${current.title}`} />
+                    <MovieCard key={m.id} movie={m} onClick={openSimilar} reason={m.wildcard ? "Wildcard pick" : `Similar to ${current.title}`} likedOverride={similarLikedMap.get(m.id) ?? false} />
                   ))}
                 </div>
               )}

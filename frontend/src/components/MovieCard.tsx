@@ -10,15 +10,22 @@ type Props = {
   movie: Movie;
   onClick: (movie: Movie) => void;
   reason?: string;
+  likedOverride?: boolean; // when provided, skips the individual Supabase fetch
 };
 
-export default function MovieCard({ movie, onClick, reason }: Props) {
+export default function MovieCard({ movie, onClick, reason, likedOverride }: Props) {
   const { user } = useAuth();
   const year = movie.release_date || movie.release_date || "—"
   const poster = movie.poster_path ? `${TMDB_IMG}${movie.poster_path}` : null;
-  const [liked, setLiked] = useState<boolean>(false);
+  const [liked, setLiked] = useState<boolean>(likedOverride ?? false);
+
+  // Keep in sync if the parent's map updates (e.g. after a heart toggle elsewhere)
+  useEffect(() => {
+    if (likedOverride !== undefined) setLiked(likedOverride);
+  }, [likedOverride]);
 
   useEffect(() => {
+    if (likedOverride !== undefined) return; // parent already supplied the answer
     if (!user) return;
     supabase
       .from("watched_movies")
@@ -27,7 +34,7 @@ export default function MovieCard({ movie, onClick, reason }: Props) {
       .eq("movie_id", movie.id)
       .maybeSingle()
       .then(({ data }) => { if (data) setLiked(data.liked === true); });
-  }, [user, movie.id]);
+  }, [user, movie.id, likedOverride]);
 
   const toggleHeart = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -73,7 +80,6 @@ export default function MovieCard({ movie, onClick, reason }: Props) {
             Wildcard
           </span>
         )}
-        {/* Heart button */}
         {user && (
           <button
             onClick={toggleHeart}

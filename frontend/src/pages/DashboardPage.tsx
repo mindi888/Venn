@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const { profile } = useAuth();
   const [watched, setWatched] = useState<WatchedMovie[]>([]);
   const [selected, setSelected] = useState<Movie | null>(null);
+  const [likedMap, setLikedMap] = useState<Map<number, boolean>>(new Map()); // NEW
 
   const [dailySelection, setDailySelection] = useState<Movie[]>([]);
   const [dailyLoading, setDailyLoading] = useState(true);
@@ -54,8 +55,6 @@ export default function DashboardPage() {
     try {
       const results = await api.coldstart(favorited, 2, 18, overlapLevel);
       const favSet = new Set(favorited.map(t => t.toLowerCase()));
-      // const filtered = results.filter(r => !watchedIdSet.has(r.id));
-      // console.log(`Fetched ${results.length} recommendations, filtered down to ${filtered.length} after removing watched.`);
       setRecs(results.map(r => ({
         ...r,
         reason: favSet.has(r.title.toLowerCase()) ? undefined : `Matches your taste for ${r.genres?.[0] ?? "cinema"}`,
@@ -73,6 +72,7 @@ export default function DashboardPage() {
       setWatched(w);
       const ids = new Set(w.map(m => m.movie_id));
       setWatchedIds(ids);
+      setLikedMap(new Map(w.map(m => [m.movie_id, m.liked === true]))); // NEW — built from the same fetch, no extra query
       const favorited = w.filter(m => m.liked).map(m => m.movie_title);
       setFavoritedTitles(favorited);
       if (favorited.length === 0) { setRecsLoading(false); return; }
@@ -112,7 +112,7 @@ export default function DashboardPage() {
           {dailyError ? <p className="text-sm text-muted-foreground">Couldn't load today's picks — try refreshing.</p>
             : dailyLoading ? <SectionSkeleton count={5} />
             : <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {dailySelection.map(m => <MovieCard key={m.id} movie={m} onClick={setSelected} />)}
+                {dailySelection.map(m => <MovieCard key={m.id} movie={m} onClick={setSelected} likedOverride={likedMap.get(m.id) ?? false} />)}
               </div>}
         </section>
 
@@ -121,7 +121,7 @@ export default function DashboardPage() {
           {recentError ? <p className="text-sm text-muted-foreground">Couldn't load recent releases — try refreshing.</p>
             : recentLoading ? <SectionSkeleton count={6} />
             : <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                {recentReleases.map(m => <MovieCard key={m.id} movie={m} onClick={setSelected} />)}
+                {recentReleases.map(m => <MovieCard key={m.id} movie={m} onClick={setSelected} likedOverride={likedMap.get(m.id) ?? false} />)}
               </div>}
         </section>
 
@@ -130,7 +130,7 @@ export default function DashboardPage() {
           {topRatedError ? <p className="text-sm text-muted-foreground">Couldn't load top rated films — try refreshing.</p>
             : topRatedLoading ? <SectionSkeleton count={10} />
             : <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                {topRated.map(m => <MovieCard key={m.id} movie={m} onClick={setSelected} />)}
+                {topRated.map(m => <MovieCard key={m.id} movie={m} onClick={setSelected} likedOverride={likedMap.get(m.id) ?? false} />)}
               </div>}
         </section>
 
@@ -158,7 +158,7 @@ export default function DashboardPage() {
             : recsLoading ? <SectionSkeleton count={12} />
             : recs.length === 0 ? null
             : <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                {recs.map(m => <MovieCard key={m.id} movie={m} onClick={setSelected} reason={m.reason} />)}
+                {recs.map(m => <MovieCard key={m.id} movie={m} onClick={setSelected} reason={m.reason} likedOverride={likedMap.get(m.id) ?? false} />)}
               </div>}
         </section>
       </div>
@@ -184,4 +184,3 @@ function SectionHeader({ title, sub }: { title: string; sub?: string }) {
     </div>
   );
 }
-
