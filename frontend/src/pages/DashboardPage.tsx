@@ -5,7 +5,7 @@ import { api, type Movie } from "@/lib/api";
 import MovieCard from "@/components/MovieCard";
 import MovieModal from "@/components/MovieModal";
 import type { WatchedMovie } from "@/lib/supabase";
-import heroBg from "../assets/hero-overlay.png";
+import heroBg from "../assets/hero-overlay.svg";
 
 type OverlapLevel = "tight" | "normal" | "loose";
 
