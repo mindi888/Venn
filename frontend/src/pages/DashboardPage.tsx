@@ -5,6 +5,7 @@ import { api, type Movie } from "@/lib/api";
 import MovieCard from "@/components/MovieCard";
 import MovieModal from "@/components/MovieModal";
 import type { WatchedMovie } from "@/lib/supabase";
+import heroBg from "../assets/hero-overlay.png";
 
 type OverlapLevel = "tight" | "normal" | "loose";
 
@@ -141,15 +142,25 @@ export default function DashboardPage() {
 
   return (
     <div className="pb-16">
-      <div className="relative pt-32 pb-20 px-4 text-center">
-        <p className="text-sm text-muted-foreground tracking-widest uppercase mb-4">
-          Welcome back, <span className="text-gold font-medium">{name}</span>
-        </p>
-        <h1 className="text-6xl sm:text-7xl text-foreground mb-3 leading-none font-bold" style={{fontFamily:"'Ranchers', sans-serif", letterSpacing:"0.04em"}}>Venn</h1>
-        <p className="font-display text-xl text-gold mb-3">When your tastes overlap</p>
-        <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
-          Tell us what you love.<br />We'll find what fits.
-        </p>
+      <div className="relative pt-32 pb-20 px-4 text-center overflow-hidden bg-black">
+        {/* SVG background */}
+        <img 
+          src={heroBg} 
+          alt="" 
+          className="absolute inset-0 w-full h-full object-cover object-center z-0" 
+        />
+
+        {/* Hero content, on top */}
+        <div className="relative z-10">
+          <p className="text-sm text-muted-foreground tracking-widest uppercase mb-4">
+            Welcome back, <span className="text-gold font-medium">{name}</span>
+          </p>
+          <h1 className="text-6xl sm:text-7xl text-foreground mb-3 leading-none font-bold" style={{fontFamily:"'Ranchers', sans-serif", letterSpacing:"0.04em"}}>Venn</h1>
+          <p className="font-display text-xl text-gold mb-3">When your tastes overlap</p>
+          <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed mt-4">
+            Tell us what you love.<br />We'll find what fits.
+          </p>
+        </div>
       </div>
 
       <div className="px-4 max-w-7xl mx-auto">
