@@ -28,7 +28,7 @@ export default function SearchPage() {
       setLoading(true);
       setError("");
       try {
-        setResults(await api.searchMovies(q, 24));
+        setResults(await api.searchMovies(q, 18));
         setSearched(true);
       } catch { setError("Search service unavailable."); }
       setLoading(false);

@@ -28,7 +28,7 @@ class RecommendRequest(BaseModel):
 class ColdstartRequest(BaseModel):
     movie_titles: list[str]
     max_per_franchise: int = 2
-    n_results: int = Field(default=24, le=50)
+    n_results: int = Field(default=18, le=50)
     overlap: Literal["tight", "normal", "loose"] = "normal"
     exclude_ids: list[int] = []
 
@@ -36,6 +36,6 @@ class ColdstartRequest(BaseModel):
 class WatchedBeforeRequest(BaseModel):
     movie_titles: list[str]
     max_per_director: int = 3
-    n_results: int = Field(default=24, le=100)
+    n_results: int = Field(default=18, le=100)
     keyword_weight: float = Field(default=0.6, ge=0.0, le=1.0)
     exclude_ids: list[int] = []

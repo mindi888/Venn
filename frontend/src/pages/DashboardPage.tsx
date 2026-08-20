@@ -52,7 +52,7 @@ export default function DashboardPage() {
     setRecsLoading(true);
     setRecsError(false);
     try {
-      const results = await api.coldstart(favorited, 2, 24, overlapLevel);
+      const results = await api.coldstart(favorited, 2, 18, overlapLevel);
       const favSet = new Set(favorited.map(t => t.toLowerCase()));
       // const filtered = results.filter(r => !watchedIdSet.has(r.id));
       // console.log(`Fetched ${results.length} recommendations, filtered down to ${filtered.length} after removing watched.`);
