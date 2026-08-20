@@ -148,7 +148,7 @@ def get_coldstart_recommendations(
 def get_watched_before_recommendations(
     movie_titles: list,
     max_per_director: int = 3,
-    n_results: int = 30,
+    n_results: int = 24,
     keyword_weight: float = 0.6,
     exclude_ids: list = None,):
 

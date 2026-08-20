@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+const BASE = import.meta.env.VITE_API_URL_LOCAL ?? "http://localhost:8000";
 
 export type Movie = {
   id: number;
@@ -60,9 +60,9 @@ export const api = {
   similar: (movie_title: string, max_per_franchise = 2, n_results = 24, include_wildcard = true, exclude_ids: number[] = []) =>
     post<Movie[]>("/recommend/similar", { movie_title, max_per_franchise, n_results, include_wildcard, exclude_ids }),
 
-  coldstart: (movie_titles: string[], max_per_franchise = 2, n_results = 30, overlap: "tight" | "normal" | "loose" = "normal", exclude_ids: number[] = []) =>
+  coldstart: (movie_titles: string[], max_per_franchise = 2, n_results = 24, overlap: "tight" | "normal" | "loose" = "normal", exclude_ids: number[] = []) =>
     post<Movie[]>("/recommend/coldstart", { movie_titles, max_per_franchise, n_results, overlap, exclude_ids }),
 
-  watchedBefore: (movie_titles: string[], max_per_director = 3, n_results = 30, keyword_weight = 0.3, exclude_ids: number[] = []) =>
+  watchedBefore: (movie_titles: string[], max_per_director = 3, n_results = 24, keyword_weight = 0.3, exclude_ids: number[] = []) =>
     post<Movie[]>("/recommend/watched-before", { movie_titles, max_per_director, n_results, keyword_weight, exclude_ids }),
 };
