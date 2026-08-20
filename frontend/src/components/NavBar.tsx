@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const links = [
   { to: "/dashboard", label: "Home", icon: "🏠" },
@@ -29,10 +29,36 @@ export default function NavBar() {
     }
   };
 
+  // #region agent log
+  useEffect(() => {
+    if (!user) return;
+    const header = document.querySelector("header");
+    const hs = header ? getComputedStyle(header) : null;
+    fetch("http://127.0.0.1:7897/ingest/43dc3874-8bb0-41ba-b4c3-0b2bba6c83f7", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "4abc99" },
+      body: JSON.stringify({
+        sessionId: "4abc99",
+        runId: "post-fix",
+        hypothesisId: "A",
+        location: "NavBar.tsx:mount",
+        message: "navbar-computed-style",
+        data: {
+          backdropFilter: hs?.backdropFilter || "none",
+          backgroundColor: hs?.backgroundColor,
+          position: hs?.position,
+          logoComplete: (document.querySelector("header img") as HTMLImageElement | null)?.complete ?? null,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+  }, [user]);
+  // #endregion
+
   if (!user) return null;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 bg-background/90 backdrop-blur-md border-b border-border">
+    <header className="fixed top-0 left-0 right-0 z-40 bg-background border-b border-border">
       <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-4">
         {/* Logo */}
         <NavLink to="/dashboard" className="flex items-center gap-2 shrink-0 group">

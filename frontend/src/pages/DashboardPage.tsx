@@ -8,6 +8,19 @@ import type { WatchedMovie } from "@/lib/supabase";
 
 type OverlapLevel = "tight" | "normal" | "loose";
 
+type DashCache = {
+  daily: Movie[];
+  recent: Movie[];
+  topRated: Movie[];
+  recs: Movie[];
+  watched: WatchedMovie[];
+  liked: [number, boolean][];
+  favorited: string[];
+  watchedIds: number[];
+};
+
+let dashCache: DashCache | null = null;
+
 function SectionSkeleton({ count }: { count: number }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
@@ -20,33 +33,63 @@ function SectionSkeleton({ count }: { count: number }) {
 
 export default function DashboardPage() {
   const { profile } = useAuth();
-  const [watched, setWatched] = useState<WatchedMovie[]>([]);
+  const [watched, setWatched] = useState<WatchedMovie[]>(dashCache?.watched ?? []);
   const [selected, setSelected] = useState<Movie | null>(null);
-  const [likedMap, setLikedMap] = useState<Map<number, boolean>>(new Map()); // NEW
+  const [likedMap, setLikedMap] = useState<Map<number, boolean>>(() => new Map(dashCache?.liked ?? []));
 
-  const [dailySelection, setDailySelection] = useState<Movie[]>([]);
-  const [dailyLoading, setDailyLoading] = useState(true);
+  const [dailySelection, setDailySelection] = useState<Movie[]>(dashCache?.daily ?? []);
+  const [dailyLoading, setDailyLoading] = useState(!dashCache);
   const [dailyError, setDailyError] = useState(false);
 
-  const [recentReleases, setRecentReleases] = useState<Movie[]>([]);
-  const [recentLoading, setRecentLoading] = useState(true);
+  const [recentReleases, setRecentReleases] = useState<Movie[]>(dashCache?.recent ?? []);
+  const [recentLoading, setRecentLoading] = useState(!dashCache);
   const [recentError, setRecentError] = useState(false);
 
-  const [topRated, setTopRated] = useState<Movie[]>([]);
-  const [topRatedLoading, setTopRatedLoading] = useState(true);
+  const [topRated, setTopRated] = useState<Movie[]>(dashCache?.topRated ?? []);
+  const [topRatedLoading, setTopRatedLoading] = useState(!dashCache);
   const [topRatedError, setTopRatedError] = useState(false);
 
-  const [recs, setRecs] = useState<Movie[]>([]);
-  const [recsLoading, setRecsLoading] = useState(true);
+  const [recs, setRecs] = useState<Movie[]>(dashCache?.recs ?? []);
+  const [recsLoading, setRecsLoading] = useState(!dashCache);
   const [recsError, setRecsError] = useState(false);
   const [overlap, setOverlap] = useState<OverlapLevel>("normal");
-  const [favoritedTitles, setFavoritedTitles] = useState<string[]>([]);
-  const [watchedIds, setWatchedIds] = useState<Set<number>>(new Set());
+  const [favoritedTitles, setFavoritedTitles] = useState<string[]>(dashCache?.favorited ?? []);
+  const [watchedIds, setWatchedIds] = useState<Set<number>>(() => new Set(dashCache?.watchedIds ?? []));
+
+  const persistCache = (
+    patch: Partial<{
+      daily: Movie[];
+      recent: Movie[];
+      topRated: Movie[];
+      recs: Movie[];
+      watched: WatchedMovie[];
+      liked: Map<number, boolean>;
+      favorited: string[];
+      watchedIds: Set<number>;
+    }>,
+  ) => {
+    dashCache = {
+      daily: patch.daily ?? dashCache?.daily ?? [],
+      recent: patch.recent ?? dashCache?.recent ?? [],
+      topRated: patch.topRated ?? dashCache?.topRated ?? [],
+      recs: patch.recs ?? dashCache?.recs ?? [],
+      watched: patch.watched ?? dashCache?.watched ?? [],
+      liked: patch.liked ? Array.from(patch.liked.entries()) : dashCache?.liked ?? [],
+      favorited: patch.favorited ?? dashCache?.favorited ?? [],
+      watchedIds: patch.watchedIds ? Array.from(patch.watchedIds) : dashCache?.watchedIds ?? [],
+    };
+  };
 
   useEffect(() => {
-    api.randomMovies(5).then(setDailySelection).catch(() => setDailyError(true)).finally(() => setDailyLoading(false));
-    api.latestMovies(6).then(setRecentReleases).catch(() => setRecentError(true)).finally(() => setRecentLoading(false));
-    api.topRatedMovies(12).then(setTopRated).catch(() => setTopRatedError(true)).finally(() => setTopRatedLoading(false));
+    if (dashCache?.daily.length) {
+      setDailyLoading(false);
+      setRecentLoading(false);
+      setTopRatedLoading(false);
+      return;
+    }
+    api.randomMovies(5).then((m) => { setDailySelection(m); persistCache({ daily: m }); }).catch(() => setDailyError(true)).finally(() => setDailyLoading(false));
+    api.latestMovies(6).then((m) => { setRecentReleases(m); persistCache({ recent: m }); }).catch(() => setRecentError(true)).finally(() => setRecentLoading(false));
+    api.topRatedMovies(12).then((m) => { setTopRated(m); persistCache({ topRated: m }); }).catch(() => setTopRatedError(true)).finally(() => setTopRatedLoading(false));
   }, []);
 
   const fetchRecs = async (favorited: string[], watchedIdSet: Set<number>, overlapLevel: OverlapLevel) => {
@@ -55,10 +98,12 @@ export default function DashboardPage() {
     try {
       const results = await api.coldstart(favorited, 2, 18, overlapLevel);
       const favSet = new Set(favorited.map(t => t.toLowerCase()));
-      setRecs(results.map(r => ({
+      const mapped = results.map(r => ({
         ...r,
         reason: favSet.has(r.title.toLowerCase()) ? undefined : `Matches your taste for ${r.genres?.[0] ?? "cinema"}`,
-      })));
+      }));
+      setRecs(mapped);
+      persistCache({ recs: mapped });
     } catch {
       setRecsError(true);
     }
@@ -67,15 +112,21 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const init = async () => {
+      if (dashCache) {
+        setRecsLoading(false);
+        return;
+      }
       const { data } = await supabase.from("watched_movies").select("*").order("created_at", { ascending: false });
       const w = data ?? [];
       setWatched(w);
       const ids = new Set(w.map(m => m.movie_id));
       setWatchedIds(ids);
-      setLikedMap(new Map(w.map(m => [m.movie_id, m.liked === true]))); // NEW — built from the same fetch, no extra query
+      const liked = new Map(w.map(m => [m.movie_id, m.liked === true] as const));
+      setLikedMap(liked);
       const favorited = w.filter(m => m.liked).map(m => m.movie_title);
       setFavoritedTitles(favorited);
-      if (favorited.length === 0) { setRecsLoading(false); return; }
+      persistCache({ watched: w, watchedIds: ids, liked, favorited });
+      if (favorited.length === 0) { setRecsLoading(false); persistCache({ recs: [] }); return; }
       await fetchRecs(favorited, ids, "normal");
     };
     init();
@@ -90,12 +141,7 @@ export default function DashboardPage() {
 
   return (
     <div className="pb-16">
-      <div className="relative pt-32 pb-20 px-4 text-center overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="w-[600px] h-[600px] rounded-full border border-white/[0.03]" />
-          <div className="absolute w-[400px] h-[400px] rounded-full border border-white/[0.04]" />
-          <div className="absolute w-[220px] h-[220px] rounded-full border border-white/[0.06]" />
-        </div>
+      <div className="relative pt-32 pb-20 px-4 text-center">
         <p className="text-sm text-muted-foreground tracking-widest uppercase mb-4">
           Welcome back, <span className="text-gold font-medium">{name}</span>
         </p>
@@ -170,7 +216,7 @@ export default function DashboardPage() {
 
 function SectionHeader({ title, sub }: { title: string; sub?: string }) {
   return (
-    <div className="mb-6 flex flex-col gap-1 border-l-2 border-primary/40 pl-4 transition-all duration-300 hover:border-primary">
+    <div className="mb-6 flex flex-col gap-1 border-l-2 border-primary/40 pl-4">
       <div className="flex items-baseline gap-3">
         <h2 className="font-display text-2xl font-bold text-gold tracking-tight uppercase">
           {title}

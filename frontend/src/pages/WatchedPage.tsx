@@ -159,7 +159,7 @@ export default function WatchedPage() {
       {showBatch && (
         <div className="mt-12">
           {/* Header Block */}
-          <div className="mb-6 flex flex-col gap-1 border-l-2 border-primary/40 pl-4 transition-all duration-300 hover:border-primary">
+          <div className="mb-6 flex flex-col gap-1 border-l-2 border-primary/40 pl-4">
             <h2 className="font-display text-2xl font-bold text-gold tracking-tight uppercase">
               Seen any of these?
             </h2>
@@ -181,7 +181,7 @@ export default function WatchedPage() {
                       className={`group relative flex flex-col rounded-xl overflow-hidden bg-card border transition-all duration-200 w-full text-left ${done ? "border-green-500/50 opacity-75" : "border-border hover:border-primary/40"}`}>
                       <div className="aspect-[2/3] bg-muted overflow-hidden">
                         {m.poster_path
-                          ? <img src={`https://image.tmdb.org/t/p/w342${m.poster_path}`} alt={m.title} className="w-full h-full object-cover" />
+                          ? <img src={`https://image.tmdb.org/t/p/w185${m.poster_path}`} alt={m.title} className="w-full h-full object-cover" loading="eager" decoding="async" />
                           : <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs text-center p-2">{m.title}</div>}
                         {!done && <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
                           <span className="text-white text-2xl">✓</span>

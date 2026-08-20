@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase, type WatchedMovie } from "@/lib/supabase";
 import MovieModal from "@/components/MovieModal";
@@ -7,7 +7,7 @@ import { buildGenreProfile } from "@/lib/genres";
 import type { Movie } from "@/lib/api";
 import { api } from "@/lib/api";
 
-const TMDB_IMG = "https://image.tmdb.org/t/p/w342";
+const TMDB_IMG = "https://image.tmdb.org/t/p/w185";
 
 export default function ProfilePage() {
   const { profile } = useAuth();
@@ -46,6 +46,31 @@ export default function ProfilePage() {
 
   const activityData = Object.entries(activityMap).reverse();
 
+  // #region agent log
+  const renderCount = useRef(0);
+  renderCount.current += 1;
+  useEffect(() => {
+    fetch("http://127.0.0.1:7897/ingest/43dc3874-8bb0-41ba-b4c3-0b2bba6c83f7", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "4abc99" },
+      body: JSON.stringify({
+        sessionId: "4abc99",
+        runId: "post-fix",
+        hypothesisId: "C",
+        location: "ProfilePage.tsx:render",
+        message: "profile-render",
+        data: {
+          renderCount: renderCount.current,
+          watchedLen: watched.length,
+          activityBars: activityData.length,
+          blurOrbs: document.querySelectorAll('[class*="blur-3xl"]').length,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+  });
+  // #endregion
+
   const openMovie = async (m: WatchedMovie) => {
     try {
       const full = await api.getMovie(m.movie_id);
@@ -73,8 +98,8 @@ export default function ProfilePage() {
       {/* ================= PROFILE HERO ================= */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-gold/5 blur-3xl" />
-          <div className="absolute top-20 -left-40 w-80 h-80 rounded-full bg-accent/5 blur-3xl" />
+          <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-gold/5" />
+          <div className="absolute top-20 -left-40 w-80 h-80 rounded-full bg-accent/5" />
         </div>
 
         <div className="relative px-4 max-w-6xl mx-auto pt-10 pb-8">
@@ -257,7 +282,9 @@ export default function ProfilePage() {
                   <img
                     src={`${TMDB_IMG}${m.poster_path}`}
                     alt={m.movie_title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                    className="w-full h-full object-cover"
+                    loading="eager"
+                    decoding="async"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-xs text-center p-1 text-muted-foreground">

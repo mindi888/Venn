@@ -4,7 +4,7 @@ import { HeartIcon } from "./HeartIcon";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 
-const TMDB_IMG = "https://image.tmdb.org/t/p/w342";
+const TMDB_IMG = "https://image.tmdb.org/t/p/w185";
 
 type Props = {
   movie: Movie;
@@ -58,15 +58,15 @@ export default function MovieCard({ movie, onClick, reason, likedOverride }: Pro
       tabIndex={0}
       onClick={() => onClick(movie)}
       onKeyDown={e => e.key === "Enter" && onClick(movie)}
-      className="group relative flex flex-col rounded-xl overflow-hidden bg-card border border-border cursor-pointer transition-all duration-200 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group relative flex flex-col rounded-xl bg-card border border-border cursor-pointer hover:border-primary/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <div className="aspect-[2/3] bg-muted relative overflow-hidden">
+      <div className="aspect-[2/3] bg-muted relative rounded-t-xl overflow-hidden">
         {poster ? (
           <img
             src={poster}
             alt={movie.title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
+            className="w-full h-full object-cover"
+            loading="eager"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
@@ -84,7 +84,7 @@ export default function MovieCard({ movie, onClick, reason, likedOverride }: Pro
           <button
             onClick={toggleHeart}
             aria-label={liked ? "Remove from favourites" : "Add to favourites"}
-            className="absolute bottom-2 right-2 p-1.5 rounded-full bg-black/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-150 hover:scale-110"
+            className="absolute bottom-2 right-2 p-1.5 rounded-full bg-black/70 opacity-0 group-hover:opacity-100"
           >
             <HeartIcon filled={liked} className="w-4 h-4" />
           </button>
