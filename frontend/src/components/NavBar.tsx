@@ -63,13 +63,14 @@ export default function NavBar() {
 
   if (!user) return null;
 
+  
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-background border-b border-border">
-      <div className="max-w-7xl mx-auto px-0 h-18 flex items-center gap-0">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 h-20 flex items-center gap-2 md:gap-4">
         {/* Logo */}
-        <NavLink 
-          to="/dashboard" 
-          className="flex items-center shrink-0 w-50 h-24 overflow-hidden"
+        <NavLink
+          to="/dashboard"
+          className="flex items-center shrink-0 h-16 md:h-20 w-auto max-w-[160px] overflow-hidden"
           onMouseEnter={() => {
             animRef.current?.setDirection(1);
             animRef.current?.play();
@@ -78,7 +79,6 @@ export default function NavBar() {
             animRef.current?.setDirection(-1);
             animRef.current?.play();
           }}
-
         >
           <div 
             ref={setLogoContainer} 
@@ -87,7 +87,7 @@ export default function NavBar() {
         </NavLink>
 
         {/* Search bar */}
-        <form onSubmit={handleSearch} className="flex-1 max-w-xs hidden md:flex">
+        <form onSubmit={handleSearch} className="flex-1 max-w-xs hidden lg:flex">
           <div className="relative w-full">
             <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -103,7 +103,7 @@ export default function NavBar() {
         </form>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-1 ml-auto">
+        <nav className="hidden lg:flex items-center gap-1 ml-auto">
           {links.map(l => (
             <NavLink
               key={l.to}
@@ -117,7 +117,7 @@ export default function NavBar() {
           ))}
         </nav>
 
-        <div className="hidden md:flex items-center gap-2 ml-2">
+        <div className="hidden lg:flex items-center gap-2 ml-2">
           <span className="text-sm text-muted-foreground">{profile?.display_name ?? profile?.username ?? ""}</span>
           <button
             onClick={logout}
@@ -127,7 +127,7 @@ export default function NavBar() {
           </button>
         </div>
 
-        <button onClick={() => setMobileOpen(v => !v)} className="md:hidden ml-auto p-2 text-muted-foreground hover:text-foreground">
+        <button onClick={() => setMobileOpen(v => !v)} className="lg:hidden ml-auto p-2 text-muted-foreground hover:text-foreground">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             {mobileOpen
               ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
@@ -138,7 +138,7 @@ export default function NavBar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-background border-t border-border px-4 py-3 flex flex-col gap-1">
+        <div className="lg:hidden bg-background border-t border-border px-4 py-3 flex flex-col gap-1">
           <form onSubmit={handleSearch} className="mb-2">
             <input
               type="text"
@@ -165,6 +165,6 @@ export default function NavBar() {
           </button>
         </div>
       )}
-    </header>
+  </header>
   );
 }
