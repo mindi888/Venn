@@ -9,7 +9,7 @@ import type { WatchedMovie } from "@/lib/supabase";
 type OverlapLevel = "tight" | "normal" | "loose";
 
 type DashCache = {
-  daily: Movie[];
+  random: Movie[];
   recent: Movie[];
   topRated: Movie[];
   recs: Movie[];
@@ -37,9 +37,9 @@ export default function DashboardPage() {
   const [selected, setSelected] = useState<Movie | null>(null);
   const [likedMap, setLikedMap] = useState<Map<number, boolean>>(() => new Map(dashCache?.liked ?? []));
 
-  const [dailySelection, setDailySelection] = useState<Movie[]>(dashCache?.daily ?? []);
-  const [dailyLoading, setDailyLoading] = useState(!dashCache);
-  const [dailyError, setDailyError] = useState(false);
+  const [randomSelection, setrandomSelection] = useState<Movie[]>(dashCache?.random ?? []);
+  const [randomLoading, setrandomLoading] = useState(!dashCache);
+  const [randomError, setrandomError] = useState(false);
 
   const [recentReleases, setRecentReleases] = useState<Movie[]>(dashCache?.recent ?? []);
   const [recentLoading, setRecentLoading] = useState(!dashCache);
@@ -58,7 +58,7 @@ export default function DashboardPage() {
 
   const persistCache = (
     patch: Partial<{
-      daily: Movie[];
+      random: Movie[];
       recent: Movie[];
       topRated: Movie[];
       recs: Movie[];
@@ -69,7 +69,7 @@ export default function DashboardPage() {
     }>,
   ) => {
     dashCache = {
-      daily: patch.daily ?? dashCache?.daily ?? [],
+      random: patch.random ?? dashCache?.random ?? [],
       recent: patch.recent ?? dashCache?.recent ?? [],
       topRated: patch.topRated ?? dashCache?.topRated ?? [],
       recs: patch.recs ?? dashCache?.recs ?? [],
@@ -81,13 +81,13 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    if (dashCache?.daily.length) {
-      setDailyLoading(false);
+    if (dashCache?.random.length) {
+      setrandomLoading(false);
       setRecentLoading(false);
       setTopRatedLoading(false);
       return;
     }
-    api.randomMovies(5).then((m) => { setDailySelection(m); persistCache({ daily: m }); }).catch(() => setDailyError(true)).finally(() => setDailyLoading(false));
+    api.randomMovies(5).then((m) => { setrandomSelection(m); persistCache({ random: m }); }).catch(() => setrandomError(true)).finally(() => setrandomLoading(false));
     api.latestMovies(6).then((m) => { setRecentReleases(m); persistCache({ recent: m }); }).catch(() => setRecentError(true)).finally(() => setRecentLoading(false));
     api.topRatedMovies(12).then((m) => { setTopRated(m); persistCache({ topRated: m }); }).catch(() => setTopRatedError(true)).finally(() => setTopRatedLoading(false));
   }, []);
@@ -154,11 +154,11 @@ export default function DashboardPage() {
 
       <div className="px-4 max-w-7xl mx-auto">
         <section className="mb-14">
-          <SectionHeader title="Daily Selection" sub="Five picks refreshed every day." />
-          {dailyError ? <p className="text-sm text-muted-foreground">Couldn't load today's picks — try refreshing.</p>
-            : dailyLoading ? <SectionSkeleton count={5} />
+          <SectionHeader title="Random Selection" sub="Five random picks every time you refresh." />
+          {randomError ? <p className="text-sm text-muted-foreground">Couldn't load today's picks — try refreshing.</p>
+            : randomLoading ? <SectionSkeleton count={5} />
             : <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {dailySelection.map(m => <MovieCard key={m.id} movie={m} onClick={setSelected} likedOverride={likedMap.get(m.id) ?? false} />)}
+                {randomSelection.map(m => <MovieCard key={m.id} movie={m} onClick={setSelected} likedOverride={likedMap.get(m.id) ?? false} />)}
               </div>}
         </section>
 
