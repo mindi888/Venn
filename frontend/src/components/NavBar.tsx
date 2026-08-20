@@ -1,7 +1,12 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
-import { useState } from "react";
+import { loadLottieScript } from "@/lib/lottie";
+import { useState, useCallback, useRef } from "react";
+
+
+// Import directly from the src directory
+import vennLogoData from "../assets/venn-logo.json"; 
 
 const links = [
   { to: "/dashboard", label: "Home", icon: "🏠" },
@@ -16,6 +21,31 @@ export default function NavBar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState("");
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const animRef = useRef<any>(null);
+
+
+  const setLogoContainer = useCallback((node: HTMLDivElement | null) => {
+    if (node) {
+      // Container just mounted — init the animation
+      loadLottieScript().then(() => {
+        if (!animRef.current && (window as any).lottie) {
+          animRef.current = (window as any).lottie.loadAnimation({
+            container: node,
+            renderer: "svg",
+            loop: false,
+            autoplay: false,
+            animationData: vennLogoData,
+          });
+        }
+      });
+    } else {
+      // Container just unmounted — clean up
+      animRef.current?.destroy();
+      animRef.current = null;
+    }
+  }, []);
+
   const logout = async () => {
     await supabase.auth.signOut();
     navigate("/login");
@@ -29,20 +59,32 @@ export default function NavBar() {
     }
   };
 
+  
+
   if (!user) return null;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-background border-b border-border">
-      <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-4">
+      <div className="max-w-7xl mx-auto px-0 h-18 flex items-center gap-0">
         {/* Logo */}
-        <NavLink to="/dashboard" className="flex items-center gap-2 shrink-0 group">
-          <img 
-            src="/venn-logo.svg" 
-            alt="Venn Logo" 
-            className="w-18 h-10 object-contain transition-transform group-hover:scale-105" 
+        <NavLink 
+          to="/dashboard" 
+          className="flex items-center shrink-0 w-50 h-24 overflow-hidden"
+          onMouseEnter={() => {
+            animRef.current?.setDirection(1);
+            animRef.current?.play();
+          }}
+          onMouseLeave={() => {
+            animRef.current?.setDirection(-1);
+            animRef.current?.play();
+          }}
+
+        >
+          <div 
+            ref={setLogoContainer} 
+            className="w-full h-full flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:block" 
           />
         </NavLink>
-
 
         {/* Search bar */}
         <form onSubmit={handleSearch} className="flex-1 max-w-xs hidden md:flex">
