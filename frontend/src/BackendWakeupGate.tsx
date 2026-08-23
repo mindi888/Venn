@@ -116,7 +116,7 @@ export function BackendWakeupGate({ children }: { children: React.ReactNode }) {
       />
 
       <h2 className="font-fun text-2xl text-foreground tracking-wide mt-4 mb-2">
-        pop a seat
+        Venn
       </h2>
 
       <p className="text-muted-foreground text-sm mb-6 min-h-[1.4em]">
