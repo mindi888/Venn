@@ -1,4 +1,4 @@
-const LOCAL = import.meta.env.VITE_API_URL_LOCAL ?? "http://localhost:8000";
+const LOCAL = import.meta.env.VITE_API_URL_LOCAL ?? "http://localhost:9000";
 const REMOTE = import.meta.env.VITE_API_URL ?? LOCAL;
 
 function resolveApiBase(): string {

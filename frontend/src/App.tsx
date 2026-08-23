@@ -15,6 +15,7 @@ import SettingsPage from "@/pages/SettingsPage";
 import type { ReactNode } from "react";
 
 
+
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, profile, loading } = useAuth();
   if (loading) return <LoadingScreen />;

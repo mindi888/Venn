@@ -36,6 +36,10 @@ app.add_middleware(
 def root():
     return {"status": "ok", "message": "Venn API is running"}
 
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
 
 app.include_router(recommend.router, prefix="/recommend", tags=["recommend"])
 app.include_router(movies.router, prefix="/movies", tags=["movies"])

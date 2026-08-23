@@ -142,7 +142,7 @@ export default function DashboardPage() {
 
   return (
     <div className="pb-16">
-      <div className="relative pt-32 pb-20 px-4 text-center overflow-hidden bg-black">
+      <div className="relative pt-35 pb-15 px-4 text-center overflow-hidden bg-black">
         {/* SVG background */}
         <img 
           src={heroBg} 
@@ -163,7 +163,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="px-4 max-w-7xl mx-auto">
+      <div className="pt-14 px-4 max-w-7xl mx-auto">
         <section className="mb-14">
           <SectionHeader title="Random Selection" sub="Five random picks every time you refresh." />
           {randomError ? <p className="text-sm text-muted-foreground">Couldn't load today's picks — try refreshing.</p>
