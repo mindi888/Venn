@@ -46,7 +46,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="pt-20 pb-16 px-4 max-w-2xl mx-auto">
+    <div className="pt-30 pb-16 px-4 max-w-2xl mx-auto">
       <h1 className="font-display text-3xl font-semibold text-gold mb-8">Settings</h1>
 
       {/* Profile */}

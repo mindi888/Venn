@@ -141,7 +141,7 @@ export default function DashboardPage() {
   const name = profile?.display_name ?? profile?.username ?? "there";
 
   return (
-    <div className="pb-16">
+    <div className="pb-10">
       <div className="relative pt-35 pb-15 px-4 text-center overflow-hidden bg-black">
         {/* SVG background */}
         <img 

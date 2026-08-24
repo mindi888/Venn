@@ -98,7 +98,7 @@ export default function WatchedPage() {
   };
 
   return (
-    <div className="pt-20 pb-16 px-4 max-w-7xl mx-auto">
+    <div className="pt-30 pb-16 px-4 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <h1 className="font-display text-3xl font-semibold text-gold">Watched Films</h1>
         <button onClick={getRecs} disabled={batchLoading}
