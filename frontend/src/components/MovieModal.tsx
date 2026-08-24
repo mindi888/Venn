@@ -1,4 +1,3 @@
-// MovieModal.tsx — full replacement
 import { useEffect, useState } from "react";
 import type { Movie } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
@@ -25,7 +24,7 @@ export default function MovieModal({ movie, onClose }: Props) {
   const [saving, setSaving] = useState(false);
   const [similar, setSimilar] = useState<Movie[]>([]);
   const [similarLoading, setSimilarLoading] = useState(false);
-  const [similarLikedMap, setSimilarLikedMap] = useState<Map<number, boolean>>(new Map()); // NEW
+  const [similarLikedMap, setSimilarLikedMap] = useState<Map<number, boolean>>(new Map()); 
 
   useEffect(() => {
     setStack([]);
@@ -61,16 +60,16 @@ export default function MovieModal({ movie, onClose }: Props) {
     setSimilarLoading(true);
     (async () => {
       let watchedIds: number[] = [];
-      let liked_map = new Map<number, boolean>(); // NEW
+      let liked_map = new Map<number, boolean>(); 
       if (user) {
-        const { data } = await supabase.from("watched_movies").select("movie_id, liked").eq("user_id", user.id); // NEW — now also selects `liked`
+        const { data } = await supabase.from("watched_movies").select("movie_id, liked").eq("user_id", user.id); 
         watchedIds = (data ?? []).map(d => d.movie_id);
-        liked_map = new Map((data ?? []).map(d => [d.movie_id, d.liked === true])); // NEW
+        liked_map = new Map((data ?? []).map(d => [d.movie_id, d.liked === true]));
       }
       try {
         const list = await api.similar(current.title, 2, 12, true, watchedIds);
         setSimilar(list);
-        setSimilarLikedMap(liked_map); // NEW
+        setSimilarLikedMap(liked_map); 
       } catch {
         setSimilar([]);
       } finally {

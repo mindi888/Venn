@@ -1,4 +1,3 @@
-// OnboardingPage.tsx — replace the DUMMY_FILMS array and search logic
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, type Movie } from "@/lib/api";
@@ -37,10 +36,6 @@ export default function OnboardingPage() {
         : prev.length < 10 ? [...prev, m] : prev
     );
   };
-
-  // ...finish() stays exactly the same as before...
-
-  // In the JSX, replace `results` usage — it now comes from state, not a filter — and use `TMDB_IMG` (w185) consistently instead of the old hardcoded dummy-image constant.
 
   const finish = async () => {
     if (selected.length < 5) return;
@@ -97,7 +92,7 @@ export default function OnboardingPage() {
                   <button
                     key={m.id}
                     onClick={() => { toggle(m); setQuery(""); 
-                    setResults([]); // Clear results after selection
+                    setResults([]); // Clear results after selection to prevent dropdown staying open
                     }}
                     
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted transition-colors first:rounded-t-xl last:rounded-b-xl ${isSelected ? "opacity-50" : ""}`}

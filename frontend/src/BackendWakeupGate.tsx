@@ -1,10 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { loadLottieScript } from "@/lib/lottie";
 
-// Import directly, same pattern as NavBar's venn-logo.json
 import loadingDiagramData from "./assets/loading-animation.json"; 
 
-// Adjust to match however you're already reading the API base URL
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 const LOADING_MESSAGES = [

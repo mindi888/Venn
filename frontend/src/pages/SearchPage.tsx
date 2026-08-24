@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api, type Movie } from "@/lib/api";
-import { supabase } from "@/lib/supabase"; // NEW
-import { useAuth } from "@/lib/auth"; // NEW
+import { supabase } from "@/lib/supabase"; 
+import { useAuth } from "@/lib/auth"; 
 import MovieCard from "@/components/MovieCard";
 import MovieModal from "@/components/MovieModal";
 
 export default function SearchPage() {
-  const { user } = useAuth(); // NEW
+  const { user } = useAuth(); 
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [results, setResults] = useState<Movie[]>([]);
@@ -15,10 +15,10 @@ export default function SearchPage() {
   const [searched, setSearched] = useState(false);
   const [selected, setSelected] = useState<Movie | null>(null);
   const [error, setError] = useState("");
-  const [likedMap, setLikedMap] = useState<Map<number, boolean>>(new Map()); // NEW
+  const [likedMap, setLikedMap] = useState<Map<number, boolean>>(new Map()); 
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // NEW — fetch the user's full liked/watched map once, reused for every card
+  // Fetch the user's full liked/watched map once, reused for every card
   useEffect(() => {
     if (!user) return;
     supabase.from("watched_movies").select("movie_id, liked").eq("user_id", user.id)

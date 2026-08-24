@@ -4,8 +4,6 @@ import { supabase } from "@/lib/supabase";
 import { loadLottieScript } from "@/lib/lottie";
 import { useState, useCallback, useRef } from "react";
 
-
-// Import directly from the src directory
 import vennLogoData from "../assets/venn-logo.json"; 
 
 const links = [

@@ -6,7 +6,7 @@ import MovieCard from "@/components/MovieCard";
 import MovieModal from "@/components/MovieModal";
 import type { WatchedMovie } from "@/lib/supabase";
 import { loadLottieScript } from "@/lib/lottie";
-import heroAnimationData from "../assets/hero-animation.json"; // point this at your new Figma export
+import heroAnimationData from "../assets/hero-animation.json";
 
 type OverlapLevel = "tight" | "normal" | "loose";
 
@@ -58,7 +58,7 @@ export default function DashboardPage() {
   const [favoritedTitles, setFavoritedTitles] = useState<string[]>(dashCache?.favorited ?? []);
   const [watchedIds, setWatchedIds] = useState<Set<number>>(() => new Set(dashCache?.watchedIds ?? []));
 
-  // Lottie hero background — same callback-ref pattern as NavBar's logo and LoadingOverlay.
+  // Used callback-ref pattern instead of ref+ useEffect since useEffect runs after React finishes rendering
   const heroAnimRef = useRef<any>(null);
 
   const setHeroContainer = useCallback((node: HTMLDivElement | null) => {

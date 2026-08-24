@@ -103,7 +103,7 @@ export default function WatchedPage() {
         <h1 className="font-display text-3xl font-semibold text-gold">Watched Films</h1>
         <button onClick={getRecs} disabled={batchLoading}
           className="text-sm px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-60 shrink-0">
-          {batchLoading ? "Loading…" : "Get Recommendations"}
+          {batchLoading ? "Loading…" : "See What's in Your Circle"}
         </button>
       </div>
 

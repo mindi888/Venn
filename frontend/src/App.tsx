@@ -52,9 +52,7 @@ function DashboardSkeleton() {
 }
 
 // Renders a skeleton that already resembles the real page layout, instead of
-// blanking the screen to solid black. The network round-trip to Supabase on
-// page load can't be made instant, but skeleton→content reads as fast even
-// when black→content at the same speed would feel like a stall.
+// blanking the screen to solid black. 
 function LoadingScreen() {
   return (
     <div className="min-h-screen bg-background">
