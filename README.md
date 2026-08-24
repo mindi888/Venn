@@ -19,15 +19,13 @@ Venn became a project where I could combine ML, backend development, frontend en
 
 ## Screenshots
 
-| Homepage | Profile |
+| Home Page | Profile Page|
 |:---:|:---:|
 | ![Homepage](./screenshots/homepage-venn.png) | ![Profile](./screenshots/profile-venn.png) |
-| **Movie Modal** | **Search** |
+| **Movie Modal** | **Search Page** |
 | ![Movie Modal](./screenshots/movie-modal-venn.png) | ![Search](./screenshots/search-venn.png) |
-| **Recommendations** | **Selection** |
-| ![Recommendations](./screenshots/recommendation-venn.png) | ![Selection](./screenshots/selection-venn.png) |
-| **Watched** | |
-| ![Watched](./screenshots/watched-venn.png) | |
+| **Recommendations** | **Watched Page** |
+| ![Recommendations](./screenshots/recommendation-venn.png) | ![Watched](./screenshots/watched-venn.png) |
 
 ## What it does
 
