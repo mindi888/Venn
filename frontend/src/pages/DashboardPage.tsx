@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { api, type Movie } from "@/lib/api";
 import MovieCard from "@/components/MovieCard";
 import MovieModal from "@/components/MovieModal";
 import type { WatchedMovie } from "@/lib/supabase";
-import heroBg from "../assets/hero-overlay.svg";
+import { loadLottieScript } from "@/lib/lottie";
+import heroAnimationData from "../assets/hero-animation.json"; // point this at your new Figma export
 
 type OverlapLevel = "tight" | "normal" | "loose";
 
@@ -56,6 +57,31 @@ export default function DashboardPage() {
   const [overlap, setOverlap] = useState<OverlapLevel>("normal");
   const [favoritedTitles, setFavoritedTitles] = useState<string[]>(dashCache?.favorited ?? []);
   const [watchedIds, setWatchedIds] = useState<Set<number>>(() => new Set(dashCache?.watchedIds ?? []));
+
+  // Lottie hero background — same callback-ref pattern as NavBar's logo and LoadingOverlay.
+  const heroAnimRef = useRef<any>(null);
+
+  const setHeroContainer = useCallback((node: HTMLDivElement | null) => {
+    if (node) {
+      loadLottieScript().then(() => {
+        if (!heroAnimRef.current && (window as any).lottie) {
+          heroAnimRef.current = (window as any).lottie.loadAnimation({
+            container: node,
+            renderer: "svg",
+            loop: true,
+            autoplay: true,
+            animationData: heroAnimationData,
+            rendererSettings: {
+              preserveAspectRatio: "xMidYMid slice",
+            },
+          });
+        }
+      });
+    } else {
+      heroAnimRef.current?.destroy();
+      heroAnimRef.current = null;
+    }
+  }, []);
 
   const persistCache = (
     patch: Partial<{
@@ -143,11 +169,10 @@ export default function DashboardPage() {
   return (
     <div className="pb-10">
       <div className="relative pt-35 pb-15 px-4 text-center overflow-hidden bg-black">
-        {/* SVG background */}
-        <img 
-          src={heroBg} 
-          alt="" 
-          className="absolute inset-0 w-full h-full object-cover object-center z-0" 
+        {/* Lottie background */}
+        <div
+          ref={setHeroContainer}
+          className="absolute inset-0 w-full h-full z-0 -translate-x-1.5 [&>svg]:w-full [&>svg]:h-full [&>svg]:block"
         />
 
         {/* Hero content, on top */}
