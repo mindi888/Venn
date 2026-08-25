@@ -2,7 +2,7 @@
 
 **When your tastes overlap ✶⋆.˚**
 
-Venn is a full-stack movie recommendation platform that builds a personalized taste profile from the films you love and surfaces recommendations you can actually understand.
+Venn is a full-stack movie recommendation/tracker platform that builds a personalized taste profile from the films you love and surfaces recommendations you can actually understand.
 
 I wanted to practice taking ML beyond a Jupyter notebook and integrating it into a real, full-stack application.
 I also wanted to build something around a problem I'd personally noticed while using movie recommendation websites. Most recommendation systems are focused on answering:
@@ -11,7 +11,7 @@ I also wanted to build something around a problem I'd personally noticed while u
 
 But sometimes I wanted the opposite: **"What movies have I probably already seen?"**
 
-Existing movie sites made it surprisingly difficult to intentionally find and confirm movies I'd already watched. That became the idea behind **What's in Your Circle** — a separate similarity system designed to surface movies I was likely already familiar with, making it possible to quickly confirm them instead of searching for each one individually.
+Existing movie sites made it surprisingly difficult to intentionally find and confirm movies I'd already watched. That became the idea behind **What's in Your Circle** — a separate similarity system designed to surface movies I was likely already familiar with, making it possible to quickly confirm them instead of searching for each one individually. This makes tracking watched movies much easier.
 
 Venn became a project where I could combine ML, backend development, frontend engineering, and UI/UX design while solving a problem I actually encountered.
 
