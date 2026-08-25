@@ -1,8 +1,8 @@
-# <img src="./frontend/public/venn-favicon-black.svg" width="36" alt=""> Mindi's Venn
+# <img src="./frontend/public/venn-favicon-black.svg" width="36" alt=""> Venn
 
 **When your tastes overlap ✶⋆.˚**
 
-Venn is a full-stack movie recommendation platform that builds a personalized taste profile from the films you love and surfaces recommendations you can actually understand.
+Venn is a full-stack movie recommendation/tracker platform that builds a personalized taste profile from the films you love and surfaces recommendations you can actually understand.
 
 I wanted to practice taking ML beyond a Jupyter notebook and integrating it into a real, full-stack application.
 I also wanted to build something around a problem I'd personally noticed while using movie recommendation websites. Most recommendation systems are focused on answering:
@@ -11,7 +11,7 @@ I also wanted to build something around a problem I'd personally noticed while u
 
 But sometimes I wanted the opposite: **"What movies have I probably already seen?"**
 
-Existing movie sites made it surprisingly difficult to intentionally find and confirm movies I'd already watched. That became the idea behind **What's in Your Circle** — a separate similarity system designed to surface movies I was likely already familiar with, making it possible to quickly confirm them instead of searching for each one individually.
+Existing movie sites made it surprisingly difficult to intentionally find and confirm movies I'd already watched. That became the idea behind **What's in Your Circle** — a separate similarity system designed to surface movies I was likely already familiar with, making it possible to quickly confirm them instead of searching for each one individually. This makes tracking watched movies much easier.
 
 Venn became a project where I could combine ML, backend development, frontend engineering, and UI/UX design while solving a problem I actually encountered.
 
@@ -19,21 +19,19 @@ Venn became a project where I could combine ML, backend development, frontend en
 
 ## Screenshots
 
-| Homepage | Profile |
+| Dashboard | Profile Page|
 |:---:|:---:|
 | ![Homepage](./screenshots/homepage-venn.png) | ![Profile](./screenshots/profile-venn.png) |
-| **Movie Modal** | **Search** |
+| **Movie Modal** | **Search Page** |
 | ![Movie Modal](./screenshots/movie-modal-venn.png) | ![Search](./screenshots/search-venn.png) |
-| **Recommendations** | **Selection** |
-| ![Recommendations](./screenshots/recommendation-venn.png) | ![Selection](./screenshots/selection-venn.png) |
-| **Watched** | |
-| ![Watched](./screenshots/watched-venn.png) | |
+| **Recommendations** | **Watched Page** |
+| ![Recommendations](./screenshots/recommendation-venn.png) | ![Watched](./screenshots/watched-venn.png) |
 
 ## What it does
 
 - **Cold-start onboarding** — new users pick 5–10 films they've genuinely enjoyed. No waiting around for weeks of "watch history" to accumulate before recommendations feel personal.
 - **"What's in your circle"** — on the Watched page, a dedicated section looks at everything you've marked as watched and surfaces other films you've probably already seen, so you can batch-confirm them as watched in a couple of taps instead of hunting them down one search at a time.
-- **Explainable recommendations** — every suggested film comes with a short reason ("Matches your taste for Neo-noir") instead of a black-box score.
+- **Explainable recommendations** — every suggested film comes with a short reason ("Matches your taste for Romance") instead of a black-box score.
 - **Adjustable overlap** — a *Tight / Balanced / Loose* control lets you dial recommendations from close matches to more adventurous, further-out picks.
 - **Taste-aware dashboard** — random daily picks, recent releases, and all-time top-rated films, all aware of what you've already marked as watched or liked.
 - **Watched, tracked, remembered** — mark films as watched/liked and add a review! Your recommendations adjust in response.
@@ -58,6 +56,8 @@ The majority of Venn's UI was designed and prototyped in **Figma Make** before b
 
 The loading animations and other motion elements were **custom-designed in Figma** and integrated into the application as Lottie animations.
 
+**Bonus˙⋆✮** The clapperboard in the navigation bar is interactive!
+
 ---
 
 ## How the recommendations work
@@ -68,7 +68,7 @@ Venn's recommendation engine runs on content-based filtering over a curated cata
 
 The raw TMDB/IMDb dataset starts at roughly a million entries — the overwhelming majority with a handful of votes and no reliable signal on quality. Sorting by raw average rating alone breaks down immediately: a movie with five 10/10 votes would outrank a beloved classic with 50,000 votes averaging 8.5.
 
-To fix that, every film is scored with **IMDb's Bayesian Weighted Rating** formula:
+To fix that, every film is scored with **Bayesian Weighted Rating** formula:
 
 ```
 WR = (v ÷ (v + m)) × R + (m ÷ (v + m)) × C
@@ -82,7 +82,7 @@ In practice, this pulls low-vote-count films toward the dataset mean (so a 10/10
 
 ### Diversity controls
 
-Recommendations cap franchise entries (max 2 per franchise in the top 150 candidates) and mix in "serendipity" picks drawn from similarity ranks 50–100, so results don't collapse into an echo chamber of near-identical sequels.
+Recommendations cap franchise entries (max 2 per franchise in the top 150 candidates) and mix in "serendipity" picks drawn from similarity ranks 50–100, so results don't fall under the Harry Potter effect.
 
 ### Adjustable overlap: Tight / Balanced / Loose
 
@@ -104,16 +104,11 @@ The batch-confirmation flow on the Watched page runs on its own blend, tuned dif
 
 That keyword-heavy blend is deliberate — keyword overlap is a stronger "you've probably seen this too" signal than broad genre similarity for a same-universe or same-franchise style match. Results are also capped per-director (max 3 per director) rather than per-franchise, since the goal is catching everything from a director or series you've been working through, not enforcing variety.
 
-### On-demand similarity, not a precomputed matrix
-
-Rather than shipping a precomputed similarity matrix (~130MB), Venn stores lightweight feature vectors and computes cosine similarity on demand at request time. This keeps the deployed backend under 2MB while still delivering fast, personalized results — and posters are fetched live from the TMDB API at runtime, so the core recommendation logic never depends on a network call.
-
 ---
 
-## Deployment notes
+## Development
 
-- Frontend deploys to **Vercel** on push.
-- Backend deploys to **Render's** free tier, which spins down after ~15 minutes of inactivity. A scheduled GitHub Actions workflow pings the backend's `/health` endpoint every 10 minutes to keep it warm; a full-screen loading state also gracefully handles any cold starts that slip through.
+I used Claude Code as a development assistant throughout the project, particularly for debugging, refactoring, and exploring implementation approaches. 
 
 ---
 
