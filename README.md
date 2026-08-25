@@ -78,23 +78,13 @@ WR = (v ÷ (v + m)) × R + (m ÷ (v + m)) × C
 - `C` — the mean rating across the entire dataset
 - `m` — a tunable "trust threshold" (set to **700** here) — the minimum vote count a film needs before its own rating is trusted more than the dataset average
 
-In practice, this pulls low-vote-count films toward the dataset mean (so a 10/10 with 3 votes doesn't outrank a 7.5/10 with 50,000 votes) while letting well-vetted films rise on their actual merits. Films are then filtered to a `WR` score ≥ 4.1, capped at the top 15,000 by score, and stripped of any missing overview/cast/director/poster data — landing at a final catalogue of **6,987 films**. Small and curated beats large and noisy for a recommendation system: every film in the dataset is one worth recommending.
+In practice, this pulls low-vote-count films toward the dataset mean (so a 10/10 with 3 votes doesn't outrank a 7.5/10 with 50,000 votes) while letting well-vetted films rise on their actual merits. Small and curated beats large and noisy for a recommendation system: every film in the dataset is one worth recommending.
 
 ### Diversity controls
 
 Recommendations cap franchise entries (max 2 per franchise in the top 150 candidates) and mix in "serendipity" picks drawn from similarity ranks 50–100, so results don't fall under the Harry Potter effect.
 
-### Adjustable overlap: Tight / Balanced / Loose
 
-Rather than re-scoring anything, this control changes *which slice of the already-ranked candidate list* gets pulled from — candidates are sorted by cosine similarity to your taste profile, then a rank-range window is selected from that sorted list:
-
-```python
-OVERLAP_PRESETS = {
-    "tight": (0, 70),      # only the most tightly-aligned matches
-    "normal": (50, 250),   # current default behavior
-    "loose": (100, 400),   # skip the closest matches, pull from a wider, looser pool
-}
-```
 ### "What's in your circle" — a second, purpose-built similarity model
 
 The batch-confirmation flow on the Watched page runs on its own blend, tuned differently from the main cold-start/dashboard engine since the goal here is different: not "discover something new," but "surface what you've very likely already seen." It combines two similarity signals:
@@ -115,7 +105,3 @@ I used Claude Code as a development assistant throughout the project, particular
 ## Credits
 
 Movie data provided by [TMDB](https://www.themoviedb.org) and [IMDb](https://www.imdb.com). 
-
----
-
-Built as a portfolio project to demonstrate end-to-end ML, backend, and frontend engineering.
