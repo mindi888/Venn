@@ -9,7 +9,7 @@ const LOADING_MESSAGES = [
   { afterSeconds: 0, text: "Grabbing your seat..." },
   { afterSeconds: 5, text: "Dimming the lights..." },
   { afterSeconds: 12, text: "Waking up the projectionist — first visit can take up to 30s..." },
-  { afterSeconds: 25, text: "Still loading reels, thanks for waiting..." },
+  { afterSeconds: 25, text: "Still loading movies, thanks for waiting..." },
   { afterSeconds: 40, text: "Almost showtime..." },
 ];
 
