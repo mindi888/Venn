@@ -1,7 +1,6 @@
 """
 Recommendation logic — adapted from the notebook.
-Uses movies_df, vectors, keyword_vectors (and the lookups precomputed
-alongside them) loaded in core.data at app startup.
+Uses movies_df, vectors, keyword_vectors loaded in core.data at app startup.
 """
 import re
 import random
@@ -54,37 +53,6 @@ def build_movie_dict(row, wildcard: bool = False) -> dict:
     return d
 
 
-def _unit(v):
-    # L2-normalize a vector; an all-zero vector stays zero (scores all 0), like sklearn
-    norm = np.linalg.norm(v)
-    return v / norm if norm else v
-
-
-def _rank(scores):
-    # Row positions by descending score; stable so ties keep row order,
-    # matching sorted(..., reverse=True)
-    return np.argsort(-scores, kind="stable")
-
-
-def _drop(order, exclude_ids, skip_indices=()):
-    # Remove excluded movie ids (and the input movies themselves) from a ranking
-    mask = ~np.isin(data.ids[order], list(exclude_ids))
-    if len(skip_indices):
-        mask &= ~np.isin(order, skip_indices)
-    return order[mask]
-
-
-def _indices_for_titles(movie_titles):
-    # Every row whose title is in movie_titles, in row order (same as df["title"].isin)
-    return sorted({i for t in movie_titles for i in data.title_to_indices.get(t, [])})
-
-
-def _profile_vector(indices):
-    # Mean of the raw (un-normalized) content vectors for these rows, as a unit vector
-    raw = data.vectors[indices] * data.vector_norms[indices, None]
-    return _unit(raw.mean(axis=0))
-
-
 def recommend(
     movie_title: str,
     max_per_franchise: int = 2,
@@ -96,35 +64,35 @@ def recommend(
     vectors = data.vectors
     exclude_ids = set(exclude_ids or [])
 
-    idx = data.title_to_indices.get(movie_title)
-    if not idx:
+    idx = movies_df[movies_df["title"] == movie_title].index
+    if len(idx) == 0:
         return None
     idx = idx[0]
     query_franchise = get_franchise_key(movie_title)
 
-    # vectors rows are unit-length, so the dot product is cosine similarity
-    distances = vectors @ vectors[idx]
+    distances = cosine_similarity(vectors[idx].reshape(1, -1), vectors)[0]
 
-    candidates = _rank(distances)[1:]
-    candidates = _drop(candidates, exclude_ids)[:150]
+    candidates = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:]
+    candidates = [c for c in candidates if int(movies_df.iloc[c[0]].id) not in exclude_ids][:150]
 
     results = []
     franchise_counts = {}
-    for i in candidates:
-        franchise = get_franchise_key(data.titles[i])
+    for i, score in candidates:
+        row = movies_df.iloc[i]
+        franchise = get_franchise_key(row.title)
         if franchise == query_franchise:
             franchise_counts[franchise] = franchise_counts.get(franchise, 0) + 1
             if franchise_counts[franchise] > max_per_franchise:
                 continue
-        results.append(build_movie_dict(movies_df.iloc[i]))
+        results.append(build_movie_dict(row))
         if len(results) == n_results:
             break
 
     if include_wildcard and len(results) > 0:
         wildcard_candidates = candidates[50:150]
         wildcard_pool = [
-            i for i in wildcard_candidates
-            if get_franchise_key(data.titles[i]) != query_franchise
+            i for i, score in wildcard_candidates
+            if get_franchise_key(movies_df.iloc[i].title) != query_franchise
         ]
         if wildcard_pool:
             wc_idx = random.choice(wildcard_pool)
@@ -145,12 +113,17 @@ def get_coldstart_recommendations(
     vectors = data.vectors
     exclude_ids = set(exclude_ids or [])
 
-    indices = _indices_for_titles(movie_titles)
+    indices = movies_df[movies_df["title"].isin(movie_titles)].index
     if len(indices) == 0:
         return None
 
-    sim_scores = vectors @ _profile_vector(indices)
-    candidates = _drop(_rank(sim_scores), exclude_ids, skip_indices=indices)
+    user_vector = vectors[indices].mean(axis=0).reshape(1, -1)
+    sim_scores = cosine_similarity(user_vector, vectors)[0]
+    candidates = sorted(list(enumerate(sim_scores)), reverse=True, key=lambda x: x[1])
+    candidates = [
+        c for c in candidates
+        if c[0] not in indices and int(movies_df.iloc[c[0]].id) not in exclude_ids
+    ]
 
     start, end = OVERLAP_PRESETS.get(overlap, OVERLAP_PRESETS["normal"])
     candidates = candidates[start:end]
@@ -158,13 +131,14 @@ def get_coldstart_recommendations(
     results = []
     franchise_counts = {}
     seen_franchises_from_input = {get_franchise_key(t) for t in movie_titles}
-    for i in candidates:
-        franchise = get_franchise_key(data.titles[i])
+    for i, score in candidates:
+        row = movies_df.iloc[i]
+        franchise = get_franchise_key(row.title)
         if franchise in seen_franchises_from_input:
             franchise_counts[franchise] = franchise_counts.get(franchise, 0) + 1
             if franchise_counts[franchise] > max_per_franchise:
                 continue
-        results.append(build_movie_dict(movies_df.iloc[i]))
+        results.append(build_movie_dict(row))
         if len(results) == n_results:
             break
 
@@ -183,23 +157,27 @@ def get_watched_before_recommendations(
     keyword_vectors = data.keyword_vectors
     exclude_ids = set(exclude_ids or [])
 
-    indices = _indices_for_titles(movie_titles)
+    indices = movies_df[movies_df["title"].isin(movie_titles)].index
     if len(indices) == 0:
         return None
 
-    content_sim = vectors @ _profile_vector(indices)
+    user_content_vec = vectors[indices].mean(axis=0).reshape(1, -1)
+    content_sim = cosine_similarity(user_content_vec, vectors)[0]
 
-    # keyword_vectors is small and sparse, so sklearn is already fast (<1ms) here
     user_keyword_vec = np.asarray(keyword_vectors[indices].mean(axis=0)).reshape(1, -1)
     keyword_sim = cosine_similarity(user_keyword_vec, keyword_vectors)[0]
 
     combined_scores = (1 - keyword_weight) * content_sim + (keyword_weight) * keyword_sim
 
-    candidates = _drop(_rank(combined_scores), exclude_ids, skip_indices=indices)[:150]
+    candidates = sorted(list(enumerate(combined_scores)), reverse=True, key=lambda x: x[1])
+    candidates = [
+        c for c in candidates
+        if c[0] not in indices and int(movies_df.iloc[c[0]].id) not in exclude_ids
+    ][:150]
 
     results = []
     director_counts = {}
-    for i in candidates:
+    for i, score in candidates:
         row = movies_df.iloc[i]
         directors = get_director_keys(row)
         skip_movie = False
