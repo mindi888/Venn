@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { loadLottieScript } from "@/lib/lottie";
+import { useBackendStatus } from "@/lib/backendStatus";
 
-import loadingDiagramData from "./assets/loading-animation.json"; 
-
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+import loadingDiagramData from "./assets/loading-animation.json";
 
 const LOADING_MESSAGES = [
   { afterSeconds: 0, text: "Grabbing your seat..." },
@@ -21,64 +20,23 @@ function getMessage(elapsed: number) {
   return message;
 }
 
-function useBackendWakeup(pollIntervalMs = 3000, maxAttempts = 20) {
-  const [isReady, setIsReady] = useState(false);
-  const [elapsed, setElapsed] = useState(0);
-  const [failed, setFailed] = useState(false);
-
-  // const checkHealth = useCallback(async () => {
-  // try {
-  // TEMP: force artificial delay to test loading states
-  //     await new Promise((r) => setTimeout(r, 8000));
-  //     const res = await fetch(`${API_BASE_URL}/health`);
-  //     return res.ok;
-  //   } catch {
-  //     return false;
-  //   }
-  // }, []);
-
-  const checkHealth = useCallback(async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/health`);
-      return res.ok;
-    } catch {
-      return false;
-    }
-  }, []);
+// Polling itself lives in lib/backendStatus (started at page load); elapsed is
+// measured from then, so the messages pick up where the wait actually is
+function useBackendWakeup() {
+  const { isReady, failed, startedAt } = useBackendStatus();
+  const elapsedNow = () => Math.floor((Date.now() - startedAt) / 1000);
+  const [elapsed, setElapsed] = useState(elapsedNow);
 
   useEffect(() => {
-    let attempts = 0;
-    let cancelled = false;
-    const startTime = Date.now();
-
-    const tick = setInterval(() => {
-      if (!cancelled) setElapsed(Math.floor((Date.now() - startTime) / 1000));
-    }, 1000);
-
-    async function poll() {
-      while (!cancelled && attempts < maxAttempts) {
-        attempts += 1;
-        const ok = await checkHealth();
-        if (ok) {
-          if (!cancelled) setIsReady(true);
-          return;
-        }
-        await new Promise((r) => setTimeout(r, pollIntervalMs));
-      }
-      if (!cancelled) setFailed(true);
-    }
-
-    poll();
-
-    return () => {
-      cancelled = true;
-      clearInterval(tick);
-    };
-  }, [checkHealth, pollIntervalMs, maxAttempts]);
+    if (isReady) return;
+    const tick = setInterval(() => setElapsed(elapsedNow()), 1000);
+    return () => clearInterval(tick);
+  }, [isReady, startedAt]);
 
   return { isReady, elapsed, failed };
 }
 
+// Wraps only the routes that call the recommendation API
 export function BackendWakeupGate({ children }: { children: React.ReactNode }) {
   const { isReady, elapsed, failed } = useBackendWakeup();
   const animRef = useRef<any>(null);
@@ -107,7 +65,7 @@ export function BackendWakeupGate({ children }: { children: React.ReactNode }) {
   if (isReady) return <>{children}</>;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center px-8 text-center bg-background">
+    <div className="fixed inset-0 z-30 flex flex-col items-center justify-center px-8 text-center bg-background">
       <div
         ref={setLoaderContainer}
         className="w-24 h-24 [&>svg]:w-full [&>svg]:h-full [&>svg]:block"

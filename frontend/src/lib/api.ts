@@ -9,6 +9,7 @@ function resolveApiBase(): string {
 }
 
 const BASE = resolveApiBase();
+export const API_BASE = BASE;
 
 export type Movie = {
   id: number;

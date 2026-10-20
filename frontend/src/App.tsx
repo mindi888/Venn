@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from "@/lib/auth";
 import { supabaseConfigured } from "@/lib/supabase";
 import NavBar from "@/components/NavBar";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { BackendWakeupGate } from "@/BackendWakeupGate";
 import LoginPage from "@/pages/LoginPage";
 import SignUpPage from "@/pages/SignUpPage";
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
@@ -90,11 +91,11 @@ function AppRoutes() {
         <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
         <Route path="/signup" element={<AuthRoute><SignUpPage /></AuthRoute>} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/onboarding" element={<OnboardingPage />} />
-        <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-        <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
-        <Route path="/watched" element={<ProtectedRoute><WatchedPage /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        <Route path="/onboarding" element={<BackendWakeupGate><OnboardingPage /></BackendWakeupGate>} />
+        <Route path="/dashboard" element={<ProtectedRoute><BackendWakeupGate><DashboardPage /></BackendWakeupGate></ProtectedRoute>} />
+        <Route path="/search" element={<ProtectedRoute><BackendWakeupGate><SearchPage /></BackendWakeupGate></ProtectedRoute>} />
+        <Route path="/watched" element={<ProtectedRoute><BackendWakeupGate><WatchedPage /></BackendWakeupGate></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><BackendWakeupGate><ProfilePage /></BackendWakeupGate></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
