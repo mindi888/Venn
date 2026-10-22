@@ -53,18 +53,19 @@ export default function MovieCard({ movie, onClick, reason, likedOverride }: Pro
   };
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={() => onClick(movie)}
-      onKeyDown={e => e.key === "Enter" && onClick(movie)}
-      className="group relative flex flex-col rounded-xl bg-card border border-border cursor-pointer hover:border-primary/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-    >
+    <div className="group relative flex flex-col rounded-xl bg-card border border-border cursor-pointer hover:border-primary/40 has-[button:focus-visible]:ring-2 has-[button:focus-visible]:ring-ring">
+      {/* Covers the whole card; the heart sits above it so the two buttons aren't nested */}
+      <button
+        type="button"
+        onClick={() => onClick(movie)}
+        aria-label={movie.title}
+        className="absolute inset-0 z-10 rounded-xl focus:outline-none"
+      />
       <div className="aspect-[2/3] bg-muted relative rounded-t-xl overflow-hidden">
         {poster ? (
           <img
             src={poster}
-            alt={movie.title}
+            alt=""
             className="w-full h-full object-cover"
             loading="eager"
           />
@@ -84,7 +85,7 @@ export default function MovieCard({ movie, onClick, reason, likedOverride }: Pro
           <button
             onClick={toggleHeart}
             aria-label={liked ? "Remove from favourites" : "Add to favourites"}
-            className="absolute bottom-2 right-2 p-1.5 rounded-full bg-black/70 opacity-0 group-hover:opacity-100"
+            className="absolute bottom-2 right-2 z-20 p-1.5 rounded-full bg-black/70 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <HeartIcon filled={liked} className="w-4 h-4" />
           </button>
@@ -94,7 +95,7 @@ export default function MovieCard({ movie, onClick, reason, likedOverride }: Pro
         <p className="text-sm font-medium text-foreground line-clamp-2 leading-snug">{movie.title}</p>
         <p className="text-xs text-muted-foreground">{year}</p>
         {reason && (
-          <p className="text-[11px] text-accent mt-1 line-clamp-2 leading-snug">{reason}</p>
+          <p className="text-[11px] text-accent-text mt-1 line-clamp-2 leading-snug">{reason}</p>
         )}
       </div>
     </div>

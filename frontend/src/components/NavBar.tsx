@@ -68,6 +68,7 @@ export default function NavBar() {
         {/* Logo */}
         <NavLink
           to="/dashboard"
+          aria-label="Venn home"
           className="flex items-center shrink-0 h-16 md:h-20 w-auto max-w-[160px] overflow-hidden"
           onMouseEnter={() => {
             animRef.current?.setDirection(1);
@@ -80,12 +81,13 @@ export default function NavBar() {
         >
           <div 
             ref={setLogoContainer} 
+            aria-hidden="true"
             className="w-full h-full flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:block" 
           />
         </NavLink>
 
         {/* Search bar */}
-        <form onSubmit={handleSearch} className="flex-1 max-w-xs hidden lg:flex">
+        <form onSubmit={handleSearch} role="search" className="flex-1 max-w-xs hidden lg:flex">
           <div className="relative w-full">
             <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -95,13 +97,14 @@ export default function NavBar() {
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Search films…"
+              aria-label="Search films"
               className="w-full bg-muted border border-border rounded-lg pl-8 pr-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
             />
           </div>
         </form>
 
         {/* Desktop nav */}
-        <nav className="hidden lg:flex items-center gap-1 ml-auto">
+        <nav aria-label="Main" className="hidden lg:flex items-center gap-1 ml-auto">
           {links.map(l => (
             <NavLink
               key={l.to}
@@ -125,7 +128,12 @@ export default function NavBar() {
           </button>
         </div>
 
-        <button onClick={() => setMobileOpen(v => !v)} className="lg:hidden ml-auto p-2 text-muted-foreground hover:text-foreground">
+        <button
+          onClick={() => setMobileOpen(v => !v)}
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-menu"
+          className="lg:hidden ml-auto p-2 text-muted-foreground hover:text-foreground">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             {mobileOpen
               ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
@@ -136,13 +144,14 @@ export default function NavBar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="lg:hidden bg-background border-t border-border px-4 py-3 flex flex-col gap-1">
-          <form onSubmit={handleSearch} className="mb-2">
+        <nav id="mobile-menu" aria-label="Main" className="lg:hidden bg-background border-t border-border px-4 py-3 flex flex-col gap-1">
+          <form onSubmit={handleSearch} role="search" className="mb-2">
             <input
               type="text"
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Search films…"
+              aria-label="Search films"
               className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
             />
           </form>
@@ -155,13 +164,13 @@ export default function NavBar() {
                 `text-sm px-3 py-2 rounded-lg transition-colors ${isActive ? "bg-white/10 text-foreground font-medium" : "text-muted-foreground hover:text-foreground"}`
               }
             >
-              {l.icon} {l.label}
+              <span aria-hidden="true">{l.icon}</span> {l.label}
             </NavLink>
           ))}
           <button onClick={logout} className="text-sm px-3 py-2 text-left text-muted-foreground hover:text-foreground">
-            🚪 Logout
+            <span aria-hidden="true">🚪</span> Logout
           </button>
-        </div>
+        </nav>
       )}
   </header>
   );

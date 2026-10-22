@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Movie } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
@@ -78,11 +78,49 @@ export default function MovieModal({ movie, onClose }: Props) {
     })();
   }, [current?.id, user]);
 
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; });
+  const isOpen = movie !== null;
+
+  // While open: Escape closes, Tab stays inside the dialog, and focus returns
+  // to whatever opened it (usually a movie card) on close
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") handleClose(); };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, []);
+    if (!isOpen) return;
+    const opener = document.activeElement as HTMLElement | null;
+    const onKeyDown = (e: KeyboardEvent) => {
+      const dialog = dialogRef.current;
+      if (e.key === "Escape") {
+        setStack([]);
+        onCloseRef.current();
+      } else if (e.key === "Tab" && dialog) {
+        const focusable = dialog.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const outside = !dialog.contains(document.activeElement);
+        if (e.shiftKey && (outside || document.activeElement === first || document.activeElement === dialog)) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && (outside || document.activeElement === last)) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      opener?.focus();
+    };
+  }, [isOpen]);
+
+  // Move focus into the dialog when it opens and when a similar film replaces the current one
+  useEffect(() => {
+    if (current) dialogRef.current?.focus();
+  }, [current?.id]);
 
   if (!movie || !current) return null;
 
@@ -128,9 +166,16 @@ export default function MovieModal({ movie, onClose }: Props) {
 
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" onClick={handleClose} />
+      <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm" onClick={handleClose} aria-hidden="true" />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-        <div className="pointer-events-auto bg-card border border-border rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="movie-modal-title"
+          tabIndex={-1}
+          className="pointer-events-auto bg-card border border-border rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl focus:outline-none"
+        >
           <div className="flex flex-col md:flex-row gap-0">
             <div className="md:w-100 shrink-0">
               <div className="md:h-full aspect-[2/3] md:aspect-auto bg-muted rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none overflow-hidden">
@@ -155,11 +200,11 @@ export default function MovieModal({ movie, onClose }: Props) {
                     </button>
                   )}
                   <div className="min-w-0">
-                    <h2 className="font-display text-2xl font-semibold text-foreground leading-tight">{current.title}</h2>
+                    <h2 id="movie-modal-title" className="font-display text-2xl font-semibold text-foreground leading-tight">{current.title}</h2>
                     {current.tagline && <p className="text-sm italic text-muted-foreground mt-1">"{current.tagline}"</p>}
                   </div>
                 </div>
-                <button onClick={handleClose} className="shrink-0 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                <button onClick={handleClose} aria-label="Close" className="shrink-0 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
@@ -197,7 +242,7 @@ export default function MovieModal({ movie, onClose }: Props) {
 
               {current.reason && (
                 <div className="bg-accent/10 border border-accent/20 rounded-lg px-3 py-2">
-                  <p className="text-xs text-accent">{current.reason}</p>
+                  <p className="text-xs text-accent-text">{current.reason}</p>
                 </div>
               )}
 

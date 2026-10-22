@@ -87,18 +87,20 @@ function AppRoutes() {
   return (
     <>
       <NavBar />
-      <Routes>
-        <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
-        <Route path="/signup" element={<AuthRoute><SignUpPage /></AuthRoute>} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/onboarding" element={<BackendWakeupGate><OnboardingPage /></BackendWakeupGate>} />
-        <Route path="/dashboard" element={<ProtectedRoute><BackendWakeupGate><DashboardPage /></BackendWakeupGate></ProtectedRoute>} />
-        <Route path="/search" element={<ProtectedRoute><BackendWakeupGate><SearchPage /></BackendWakeupGate></ProtectedRoute>} />
-        <Route path="/watched" element={<ProtectedRoute><BackendWakeupGate><WatchedPage /></BackendWakeupGate></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><BackendWakeupGate><ProfilePage /></BackendWakeupGate></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
+      <main>
+        <Routes>
+          <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
+          <Route path="/signup" element={<AuthRoute><SignUpPage /></AuthRoute>} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/onboarding" element={<BackendWakeupGate><OnboardingPage /></BackendWakeupGate>} />
+          <Route path="/dashboard" element={<ProtectedRoute><BackendWakeupGate><DashboardPage /></BackendWakeupGate></ProtectedRoute>} />
+          <Route path="/search" element={<ProtectedRoute><BackendWakeupGate><SearchPage /></BackendWakeupGate></ProtectedRoute>} />
+          <Route path="/watched" element={<ProtectedRoute><BackendWakeupGate><WatchedPage /></BackendWakeupGate></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><BackendWakeupGate><ProfilePage /></BackendWakeupGate></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </main>
       <Footer />
     </>
   );

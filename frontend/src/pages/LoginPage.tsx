@@ -6,7 +6,6 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -54,11 +53,7 @@ export default function LoginPage() {
                 className="w-full bg-muted border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground">
-                <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} className="rounded" />
-                Remember me
-              </label>
+            <div className="flex items-center justify-end">
               <Link to="/forgot-password" className="text-sm text-red-300 hover:text-red-300/80 transition-colors">
                 Forgot password?
               </Link>
@@ -73,7 +68,7 @@ export default function LoginPage() {
           </form>
           <p className="text-center text-sm text-muted-foreground mt-6">
             No account yet?{" "}
-            <Link to="/signup" className="text-green-400 hover:underline">Create one</Link>
+            <Link to="/signup" className="text-green-400 underline underline-offset-2">Create one</Link>
           </p>
         </div>
       </div>

@@ -116,6 +116,7 @@ export default function WatchedPage() {
           </button>
         ))}
         <select
+          aria-label="Sort films"
           value={sort}
           onChange={e => setSort(e.target.value as SortOption)}
           className="text-sm px-3 py-1.5 rounded-lg border border-border bg-card text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring ml-auto"
@@ -138,11 +139,11 @@ export default function WatchedPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.map(m => (
-            <div key={m.id} role="button" tabIndex={0} onClick={() => openModal(m)} onKeyDown={e => e.key === "Enter" && openModal(m)}
-              className="flex items-center gap-3 bg-card border border-border rounded-xl p-3 cursor-pointer hover:border-primary/40 transition-colors group">
+            <button key={m.id} type="button" onClick={() => openModal(m)}
+              className="flex items-center gap-3 w-full text-left bg-card border border-border rounded-xl p-3 cursor-pointer hover:border-primary/40 transition-colors group focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               <div className="w-10 h-14 bg-muted rounded shrink-0 overflow-hidden">
                 {m.poster_path
-                  ? <img src={`${TMDB_IMG}${m.poster_path}`} alt={m.movie_title} className="w-full h-full object-cover" />
+                  ? <img src={`${TMDB_IMG}${m.poster_path}`} alt="" className="w-full h-full object-cover" />
                   : null}
               </div>
               <div className="min-w-0 flex-1">
@@ -150,8 +151,10 @@ export default function WatchedPage() {
                 <p className="text-xs text-muted-foreground mb-1">{m.watched_date ?? "—"}</p>
                 {m.rating != null && <StarRating value={m.rating} readOnly size="sm" />}
               </div>
-              <span className="text-lg shrink-0 text-red-400 scale-x-120">{m.liked === true ? "♥" : ""}</span>
-            </div>
+              <span className="text-lg shrink-0 text-red-400 scale-x-120">
+                {m.liked === true && <><span aria-hidden="true">♥</span><span className="sr-only">Favourited</span></>}
+              </span>
+            </button>
           ))}
         </div>
       )}

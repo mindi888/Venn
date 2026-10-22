@@ -14,40 +14,54 @@ export default function StarRating({ value, onChange, readOnly = false, size = "
 
   const active = hover ?? value ?? 0;
 
+  const star = (filled: boolean) => (
+    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path
+        d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 14.27l-4.94 2.43.94-5.49-4-3.9 5.53-.8L10 1.5z"
+        fill={filled ? "#D4A017" : "none"}
+        stroke={filled ? "#D4A017" : "#3A3A3A"}
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
+  // Display-only: one labelled image, so it can sit inside other buttons and cards
+  if (readOnly) {
+    return (
+      <div className="flex gap-0.5" role="img" aria-label={`Rated ${value ?? 0} out of 10`}>
+        {Array.from({ length: 10 }, (_, i) => (
+          <span key={i} className={sizes[size]}>{star(i + 1 <= (value ?? 0))}</span>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div
       className="flex gap-0.5"
       onMouseLeave={() => setHover(null)}
-      role={readOnly ? undefined : "group"}
-      aria-label={readOnly ? `Rating: ${value ?? 0} out of 10` : "Select rating"}
+      role="group"
+      aria-label="Your rating"
     >
       {Array.from({ length: 10 }, (_, i) => {
-        const star = i + 1;
-        const filled = star <= active;
+        const n = i + 1;
         return (
           <button
-            key={star}
+            key={n}
             type="button"
-            disabled={readOnly}
-            className={`${sizes[size]} transition-transform duration-75 ${readOnly ? "cursor-default" : "cursor-pointer hover:scale-110"} focus:outline-none`}
-            onClick={() => onChange?.(star)}
-            onMouseEnter={() => !readOnly && setHover(star)}
-            aria-label={`Rate ${star} out of 10`}
+            className={`${sizes[size]} transition-transform duration-75 cursor-pointer hover:scale-110 rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring`}
+            onClick={() => onChange?.(n)}
+            onMouseEnter={() => setHover(n)}
+            aria-label={`Rate ${n} out of 10`}
+            aria-pressed={value === n}
           >
-            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 14.27l-4.94 2.43.94-5.49-4-3.9 5.53-.8L10 1.5z"
-                fill={filled ? "#D4A017" : "none"}
-                stroke={filled ? "#D4A017" : "#3A3A3A"}
-                strokeWidth="1.5"
-                strokeLinejoin="round"
-              />
-            </svg>
+            {star(n <= active)}
           </button>
         );
       })}
-      {!readOnly && active > 0 && (
-        <span className="ml-2 text-sm text-muted-foreground self-center">{active}/10</span>
+      {active > 0 && (
+        <span className="ml-2 text-sm text-muted-foreground self-center" aria-hidden="true">{active}/10</span>
       )}
     </div>
   );

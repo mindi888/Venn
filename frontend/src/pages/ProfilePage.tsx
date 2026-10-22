@@ -95,7 +95,7 @@ export default function ProfilePage() {
             </div>
 
             <div>
-              <p className="text-xs text-accent uppercase tracking-[0.25em] mb-2">
+              <p className="text-xs text-accent-text uppercase tracking-[0.25em] mb-2">
                 Film profile
               </p>
 
@@ -147,7 +147,7 @@ export default function ProfilePage() {
           {/* Taste Profile */}
           <div>
             <div className="mb-5">
-              <p className="text-xs text-accent uppercase tracking-[0.25em] mb-1">
+              <p className="text-xs text-accent-text uppercase tracking-[0.25em] mb-1">
                 What you watch
               </p>
 
@@ -165,7 +165,7 @@ export default function ProfilePage() {
           {/* Activity */}
           <div>
             <div className="mb-5">
-              <p className="text-xs text-accent uppercase tracking-[0.25em] mb-1">
+              <p className="text-xs text-accent-text uppercase tracking-[0.25em] mb-1">
                 Your viewing history
               </p>
 
