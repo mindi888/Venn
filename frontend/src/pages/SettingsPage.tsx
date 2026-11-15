@@ -16,6 +16,7 @@ export default function SettingsPage() {
   const [passMsg, setPassMsg] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const saveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,9 +40,17 @@ export default function SettingsPage() {
   const deleteAccount = async () => {
     if (!user) return;
     setDeleting(true);
-    await supabase.from("watched_movies").delete().eq("user_id", user.id);
-    await supabase.from("profiles").delete().eq("id", user.id);
-    await supabase.auth.signOut();
+    setDeleteError("");
+    // Deletes the auth user plus their profile and watched movies (see
+    // supabase/migrations/*_delete_own_account.sql)
+    const { error } = await supabase.rpc("delete_own_account");
+    if (error) {
+      setDeleteError(`Couldn't delete your account: ${error.message}`);
+      setDeleting(false);
+      return;
+    }
+    // The user no longer exists server-side, so only clear the local session
+    await supabase.auth.signOut({ scope: "local" });
     navigate("/login");
   };
 
@@ -87,6 +96,7 @@ export default function SettingsPage() {
       <section className="bg-card border border-red-500/20 rounded-2xl p-6">
         <h2 className="text-lg font-semibold text-red-400 mb-2">Danger Zone</h2>
         <p className="text-sm text-muted-foreground mb-4">Deletes your account, profile, and all watched movies. This cannot be undone.</p>
+        {deleteError && <div role="alert" className="mb-4 text-sm text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">{deleteError}</div>}
         {!confirmDelete ? (
           <button onClick={() => setConfirmDelete(true)}
             className="text-sm px-4 py-2 border border-red-500/40 text-red-400 rounded-lg hover:bg-red-500/10 transition-colors">
